@@ -213,10 +213,30 @@
 	</Item>
 	<Item>
 		<TextId>1402</TextId>
-		<Text>显示方式</Text>
+		<Text>显示内截面实体</Text>
 	</Item>
-
-
+	<Item>
+		<TextId>1403</TextId>
+		<Text>显示内截面及路径</Text>
+	</Item>
+	<Item>
+		<TextId>1404</TextId>
+		<Text>强对应</Text>
+	</Item>
+	<Item>
+		<TextId>1405</TextId>
+		<Text>首尾对应</Text>
+	</Item>
+	<Item>
+		<TextId>1406</TextId>
+		<Text>依次对应</Text>
+	</Item>
+	<Item>
+		<TextId>1407</TextId>
+		<Text>以PythonPart形式显示</Text>
+	</Item>
+	
+	
   <Item>
     <TextId>1500</TextId>
     <Text>内截面控制</Text>

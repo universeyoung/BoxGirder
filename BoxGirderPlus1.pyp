@@ -4,7 +4,7 @@
     <Name>Examp\BoxGirderPlus1.py</Name>
     <Title>BoxGirder</Title>
     <TextId>1000</TextId>
-    <ReadLastInput>True</ReadLastInput>
+    <ReadLastInput>False</ReadLastInput>
     <Version>1.0</Version>
   </Script>
   <Page>
@@ -219,7 +219,7 @@
       <Name>dis04</Name>
       <Text>dis04</Text>
 		  <TextId>1505</TextId>
-      <Value>11750</Value>
+      <Value>12300</Value>
       <Visible>secnum>4</Visible>
       <ValueType>Length</ValueType>
     </Parameter>
@@ -2281,7 +2281,7 @@
         <Name>wixdis</Name>
         <Text>wixdis</Text>
         <TextId>1708</TextId>
-        <Value>2000</Value>
+        <Value>3300</Value>
         <ValueType>Length</ValueType>
       </Parameter>
       <Parameter>
@@ -2369,7 +2369,7 @@
         <Name>wimxdis</Name>
         <Text>wimxdis</Text>
         <TextId>1708</TextId>
-        <Value>2000</Value>
+        <Value>3300</Value>
         <ValueType>Length</ValueType>
       </Parameter>
       <Parameter>
@@ -2414,15 +2414,51 @@
     <Parameter>
       <Name>patht</Name>
       <Text>patht</Text>
-		  <TextId>1401</TextId>
-      <Value>True</Value>
+      <TextId>1401</TextId>
+      <Value>3</Value>
+      <ValueType>RadioButtonGroup</ValueType>
+
+      <Parameter>
+        <Name>PButton1</Name>
+        <Text>strong</Text>
+        <TextId>1404</TextId>
+        <Value>1</Value>
+        <ValueType>RadioButton</ValueType>
+      </Parameter>
+      <Parameter>
+        <Name>PButton2</Name>
+        <Text>headtail</Text>
+        <TextId>1405</TextId>
+        <Value>2</Value>
+        <ValueType>RadioButton</ValueType>
+      </Parameter>
+      <Parameter>
+        <Name>PButton3</Name>
+        <Text>linear</Text>
+        <TextId>1406</TextId>
+        <Value>3</Value>
+        <ValueType>RadioButton</ValueType>
+      </Parameter>
+    </Parameter>
+    <Parameter>
+      <Name>blockvis</Name>
+      <Text>blockvis</Text>
+		  <TextId>1402</TextId>
+      <Value>False</Value>
+      <ValueType>CheckBox</ValueType>
+    </Parameter>
+    <Parameter>
+      <Name>secvis</Name>
+      <Text>secvis</Text>
+      <TextId>1403</TextId>
+      <Value>False</Value>
       <ValueType>CheckBox</ValueType>
     </Parameter>
     <Parameter>
       <Name>py</Name>
       <Text>py</Text>
-		  <TextId>1402</TextId>
-      <Value>True</Value>
+      <TextId>1407</TextId>
+      <Value>False</Value>
       <ValueType>CheckBox</ValueType>
     </Parameter>
   </Page>

@@ -82,6 +82,8 @@ class BoxGirderPlus1():
         self.model_ele_list = []
         self.handle_list = None
         self.document = doc
+        self.com_prop = AllplanBaseElements.CommonProperties()
+        self.com_prop.GetGlobalProperties()
 
     def data_read(self, build_dict):
         for key, value in build_dict.items():
@@ -98,8 +100,19 @@ class BoxGirderPlus1():
             tuple  with created elements and handles.
         """
         self.data_read(build_ele.get_parameter_dict())
-        self.create_geometry(build_ele)
-
+        polyhedron = self.create_geometry()
+        reinforcement = self.create_reinforcement()
+        views = [View2D3D(polyhedron)]
+        pythonpart = PythonPart('BoxGirderPlus1', parameter_list=(build_ele.get_params_list()),
+          hash_value=(build_ele.get_hash()),
+          python_file=(build_ele.pyp_file_name),
+          views=views,
+          reinforcement=reinforcement,
+          common_props=(self.com_prop))
+        if self.py:
+            self.model_ele_list = pythonpart.create()
+        else:
+            self.model_ele_list = polyhedron
         return (self.model_ele_list, self.handle_list)
 
     def translate(self, element, trans_vector):
@@ -110,7 +123,7 @@ class BoxGirderPlus1():
         matrix.Translate(trans_vector)
         return AllplanGeo.Transform(element, matrix)
 
-    def create_geometry(self, build_ele):
+    def create_geometry(self):
         """
         Create the element geometries
 
@@ -311,37 +324,31 @@ class BoxGirderPlus1():
         print(str(errsub))
         print("合并错误：")
         print(str(errcomb))
-        #以实体方式显示还是以PythonPart方式显示
-        if not self.py:
-            self.model_ele_list=[]
-            if not errcomb and GirderPlus.IsValid:
-              self.model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,GirderPlus))
+        #是否显示区域块
+        
+        model_ele_list=[]
+        if not errcomb and GirderPlus.IsValid:
+            model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,GirderPlus))
+        if self.blockvis:
             for i in range(0,len(inners)):
                 if not errlist[i] and inners[i].IsValid:
                     inner=self.translate(inners[i],AllplanGeo.Vector3D(1000*i,0,12000))
-                    self.model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,inner))
-                else:
+                    model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,inner))
+        if self.secvis:
+            for i in range(0,len(inners)):
                     errpl1,erinner1=AllplanGeo.CreatePlanarBRep3D(innersectionlist[i])
                     if not errpl1 and erinner1.IsValid:
-                        erin1=self.translate(erinner1,AllplanGeo.Vector3D(1000*i,0,12000))
-                        self.model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,erin1))
+                        erin1=self.translate(erinner1,AllplanGeo.Vector3D(1000*i,0,-12000))
+                        model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,erin1))
                     errpl2,erinner2=AllplanGeo.CreatePlanarBRep3D(innersectionlist[i+1])
                     if not errpl2 and erinner2.IsValid:
-                        erin2=self.translate(erinner2,AllplanGeo.Vector3D(1000*i,0,12000))
-                        self.model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,erin2))
+                        erin2=self.translate(erinner2,AllplanGeo.Vector3D(1000*i,0,-12000))
+                        model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,erin2))
                     for j in range(0,len(pathlistlist[i])):
                         newpa=pathlistlist[i][j]
-                        ernewpa=self.translate(newpa,AllplanGeo.Vector3D(1000*i,0,12000))
-                        self.model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,ernewpa))
-        else:
-            views = []
-            views.append(View2D3D ([AllplanBasisElements.ModelElement3D(com_prop, GirderPlus)]))
-            pythonpart = PythonPart ("BoxGirderPlus1",
-                                     build_ele.get_params_list(),
-                                     build_ele.get_hash(),
-                                     build_ele.pyp_file_name,
-                                     views)
-            self.model_ele_list = pythonpart.create()
+                        ernewpa=self.translate(newpa,AllplanGeo.Vector3D(1000*i,0,-12000))
+                        model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,ernewpa))
+        return model_ele_list
 
     def create_outer_section_path(self,a1,p1,a2,p2,a3,p3,a4,p4,b,b1,c1,q1,c2,q2,c3,q3,c4,q4,br1,cr1,cr2):
         """
@@ -493,7 +500,7 @@ class BoxGirderPlus1():
         pathlist=[]
         p1=pl1[:]
         p2=pl2[:]
-        if type==True:
+        if type==1:
             if a>b:
                 for i in range(0,a-b):
                     p2.append(pl2[-1])
@@ -502,7 +509,7 @@ class BoxGirderPlus1():
                     p1.append(pl1[-1])
             for i in range(0,max(a,b)):
                 pathlist.append(AllplanGeo.Line3D(p1[i],p2[i]))
-        else:
+        elif type==2:
             if a > b:
                 pl10 = pl1[:b-1]
                 pl10.append(pl1[-1])
@@ -511,6 +518,9 @@ class BoxGirderPlus1():
                 pl20 = pl2[:a-1]
                 pl20.append(pl2[-1])
                 pl2=pl20
+            for i in range(0, min(a, b)):
+                pathlist.append(AllplanGeo.Line3D(pl1[i],pl2[i]))
+        else:
             for i in range(0, min(a, b)):
                 pathlist.append(AllplanGeo.Line3D(pl1[i],pl2[i]))
         return pathlist
@@ -529,3 +539,10 @@ class BoxGirderPlus1():
             tail=list[index[-1]+1:]
             li=head+mid+tail
         return li
+
+    def create_reinforcement(self):
+        reinforcement=[]
+        
+        return reinforcement
+
+    def create_steel_shape(self):
