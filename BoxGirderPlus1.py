@@ -7,6 +7,9 @@ import NemAll_Python_BaseElements as AllplanBaseElements
 import NemAll_Python_BasisElements as AllplanBasisElements
 import math
 
+from StdReinfShapeBuilder.RotationAngles import RotationAngles
+import StdReinfShapeBuilder.LinearBarPlacementBuilder as LinearBarBuilder
+import NemAll_Python_Reinforcement as AllplanReinf
 from PythonPart import View2D3D, PythonPart
 
 print('Load BoxGirderPlus1.py successfully')
@@ -135,10 +138,7 @@ class BoxGirderPlus1():
         height=self.q10+self.q20+self.q30+self.q40+self.b0-self.a10*self.p10-self.a20*self.p20-self.a30*self.p30-self.a40*self.p40
         halfwidth=self.a10+self.a20+self.a30+self.a40
         #外截面
-        outersection=self.create_outer_section_path(self.a10,self.p10,self.a20,self.p20,self.a30,self.p30,self.a40,self.p40,
-                self.b0,self.b10,self.c10,self.q10,self.c20,self.q20,self.c30,self.q30,
-                self.a10+self.a20+self.a30+self.a40-self.c10-self.c20-self.c30,
-                self.q40,self.br0,self.cr10,self.cr20)
+        outersection,outermain,outerscale=self.create_common_outer_section_path()
         #内截面参数
         id1list=[self.id01,self.id11,self.id21,self.id31,self.id41,self.id51,self.id61,self.id71,self.id81,self.id91]
         id2list=[self.id02,self.id12,self.id22,self.id32,self.id42,self.id52,self.id62,self.id72,self.id82,self.id92]
@@ -316,14 +316,6 @@ class BoxGirderPlus1():
             errsub,GirderPlus=AllplanGeo.MakeSubtraction(GirderPlus,swihcy[i])
         com_prop = AllplanBaseElements.CommonProperties()
         com_prop.GetGlobalProperties()
-        print("生成内截面实体错误：")
-        print("生成外截面实体错误：")
-        print(str(errout))
-        print("内截面实体合并错误：")
-        print("求减错误：")
-        print(str(errsub))
-        print("合并错误：")
-        print(str(errcomb))
         #是否显示区域块
         
         model_ele_list=[]
@@ -411,8 +403,77 @@ class BoxGirderPlus1():
         rpath=AllplanGeo.Transform(lpath,matxz)
         #合并路径
         rpath.Reverse()
+        path=lpath
+        path+=rpath
+        mainline=[ln0,ln1,ln2,ln3,ln4,ln5,ln6,ln7,ln8]
+        return (path,lpath,mainline)
+
+    def create_common_outer_section_path(self):
+        """
+        获取截面外轮廓
+        """
+        #总长宽
+        half_width=self.a10+self.a20+self.a30+self.a40
+        height=self.q10+self.q20+self.q30+self.q40+self.b0-self.a10*self.p10-self.a20*self.p20-self.a30*self.p30-self.a40*self.p40
+        self.c40=self.a10+self.a20+self.a30+self.a40-self.c10-self.c20-self.c30
+        #线性主点
+        pt0=AllplanGeo.Point3D(0,0,height)
+        pt1=pt0+AllplanGeo.Vector3D(0,self.a10,self.a10*self.p10)
+        pt2=pt1+AllplanGeo.Vector3D(0,self.a20,self.a20*self.p20)
+        pt3=pt2+AllplanGeo.Vector3D(0,self.a30,self.a30*self.p30)
+        pt4=pt3+AllplanGeo.Vector3D(0,self.a40,self.a40*self.p40)
+        pt5=pt4+AllplanGeo.Vector3D(0,0,-self.b0)
+        pt6=pt5+AllplanGeo.Vector3D(0,-self.c40,-self.q40)
+        pt7=pt6+AllplanGeo.Vector3D(0,-self.c30,-self.q30)
+        pt8=pt7+AllplanGeo.Vector3D(0,-self.c20,-self.q20)
+        pt9=pt8+AllplanGeo.Vector3D(0,-self.c10,-self.q10)
+        #主线：
+        ln0=AllplanGeo.Line3D(pt0,pt1)
+        ln1=AllplanGeo.Line3D(pt1,pt2)
+        ln2=AllplanGeo.Line3D(pt2,pt3)
+        ln3=AllplanGeo.Line3D(pt3,pt4)
+        ln4=AllplanGeo.Line3D(pt4,pt5)
+        ln5=AllplanGeo.Line3D(pt5,pt6)
+        ln6=AllplanGeo.Line3D(pt6,pt7)
+        ln7=AllplanGeo.Line3D(pt7,pt8)
+        ln8=AllplanGeo.Line3D(pt8,pt9)
+        #流水槽
+        cc=pt5+AllplanGeo.Vector3D(0,-self.b10,-self.b10*self.q40/self.c40)
+        lsc=AllplanGeo.Arc3D(cc,AllplanGeo.Vector3D(0,-1,0),AllplanGeo.Vector3D(-1,0,0),self.br0,self.br0,0,2*math.pi,False)
+        bo,pt5list=AllplanGeo.IntersectionCalculus(ln5,lsc,10e-10,2)
+        ln51=AllplanGeo.Line3D(pt5,pt5list[1])
+        AllplanGeo.Arc3D.SetStartPoint(lsc,pt5list[1])
+        AllplanGeo.Arc3D.SetEndPoint(lsc,pt5list[0])
+        ln52=AllplanGeo.Line3D(pt5list[0],pt6)
+        #CR2倒角
+        err1,ln6,ln7,fil67=AllplanGeo.FilletCalculus3D.Calculate(ln6,ln7,self.cr20)
+        #CR1倒角
+        err2,ln7,ln8,fil78=AllplanGeo.FilletCalculus3D.Calculate(ln7,ln8,self.cr10)
+        #连成路径
+        lpath=AllplanGeo.Path3D()
+        lpath+=ln0
+        lpath+=ln1
+        lpath+=ln2
+        lpath+=ln3
+        lpath+=ln4
+        lpath+=ln51
+        lpath+=lsc
+        lpath+=ln52
+        lpath+=ln6
+        lpath+=fil67
+        lpath+=ln7
+        lpath+=fil78
+        lpath+=ln8
+        #XZ平面镜像
+        matxz=AllplanGeo.Matrix3D()
+        matxz.Reflection(AllplanGeo.Plane3D(AllplanGeo.Point3D(0, 0, 0),AllplanGeo.Point3D(0, 0, 1),AllplanGeo.Point3D(1, 0, 0)))
+        rpath=AllplanGeo.Transform(lpath,matxz)
+        #合并路径
+        rpath.Reverse()
         lpath+=rpath
-        return lpath
+        mainline=[ln0,ln1,ln2,ln3,ln4,ln5,ln6,ln7,ln8]
+        scaleline=[ln0,ln1,ln2,ln3,ln4,ln51,lsc,ln52,ln6,fil67,ln7,fil78,ln8]
+        return (lpath,mainline,scaleline)
 
     def create_common_inner_section_path(self,d1,d2,height,uplinenum,e1,n1,e2,n2,e3,n3,downlinenum,f1,m1,f2,m2,f3,m3,bo1,ce1,bo2,cf1,d):
         """
@@ -542,7 +603,40 @@ class BoxGirderPlus1():
 
     def create_reinforcement(self):
         reinforcement=[]
+        matxz=AllplanGeo.Matrix3D()
+        matxz.Reflection(AllplanGeo.Plane3D(AllplanGeo.Point3D(0, 0, 0),AllplanGeo.Point3D(0, 0, 1),AllplanGeo.Point3D(1, 0, 0)))
+        shape_builder=self.create_steel_shape()
+        shape_builder.SetSideLengthStart(0)
+        shape_builder.SetAnchorageHookStart(135)
+        shape_builder.SetSideLengthEnd(0)
+        shape_builder.SetAnchorageHookEnd(135)
         
+        shape = shape_builder.CreateShape(12,4,10,20,AllplanReinf.BendingShapeType.Freeform)
+        if shape.IsValid() is False:
+            return reinforcement
+        outsect,outmain,outscale=self.create_common_outer_section_path()
+        start_point=outmain[3].GetEndPoint()
+        end_point=start_point+AllplanGeo.Vector3D(24600,0,0)
+        N5t1=LinearBarBuilder.create_linear_bar_placement_from_to_by_dist(
+                20, shape,
+                start_point,
+                end_point,
+                30, 30, 200,
+                LinearBarBuilder.StartEndPlacementRule.AdditionalCover,
+                False)
+        reinforcement.append(N5t1)
         return reinforcement
 
     def create_steel_shape(self):
+        allshapes=()
+        angle_global_to_local     = AllplanGeo.Angle()
+        angle_global_to_local.Deg = -90
+        outsect,outmain,outscale=self.create_common_outer_section_path()
+        shape_mat = AllplanGeo.Matrix3D()
+        shape_mat.SetRotation(outmain[3], angle_global_to_local)
+        shape_builder = AllplanReinf.ReinforcementShapeBuilder(shape_mat)
+        shape_builder.AddPoints([(outmain[4].GetEndPoint(),30),
+            (outmain[3].GetEndPoint(),30),
+            (outmain[2].GetEndPoint(),30),
+            (outmain[1].GetEndPoint(),30),(30)])
+        return shape_builder
