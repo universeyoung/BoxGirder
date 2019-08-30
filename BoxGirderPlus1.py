@@ -6,11 +6,13 @@ import NemAll_Python_Geometry as AllplanGeo
 import NemAll_Python_BaseElements as AllplanBaseElements
 import NemAll_Python_BasisElements as AllplanBasisElements
 import math
-
 from StdReinfShapeBuilder.RotationAngles import RotationAngles
 import StdReinfShapeBuilder.LinearBarPlacementBuilder as LinearBarBuilder
 import NemAll_Python_Reinforcement as AllplanReinf
 from PythonPart import View2D3D, PythonPart
+from JunheModels.util.createsteelshape import Createsteelshape
+import StdReinfShapeBuilder.ProfileReinfShapeBuilder as ProfileShapeBuilder
+from StdReinfShapeBuilder.ReinforcementShapeProperties import ReinforcementShapeProperties
 
 print('Load BoxGirderPlus1.py successfully')
 
@@ -605,27 +607,45 @@ class BoxGirderPlus1():
         reinforcement=[]
         matxz=AllplanGeo.Matrix3D()
         matxz.Reflection(AllplanGeo.Plane3D(AllplanGeo.Point3D(0, 0, 0),AllplanGeo.Point3D(0, 0, 1),AllplanGeo.Point3D(1, 0, 0)))
-        shape_builder=self.create_steel_shape()
-        shape_builder.SetSideLengthStart(0)
-        shape_builder.SetAnchorageHookStart(135)
-        shape_builder.SetSideLengthEnd(0)
-        shape_builder.SetAnchorageHookEnd(135)
-        
-        shape = shape_builder.CreateShape(12,4,10,20,AllplanReinf.BendingShapeType.Freeform)
-        if shape.IsValid() is False:
-            return reinforcement
         outsect,outmain,outscale=self.create_common_outer_section_path()
         start_point=outmain[3].GetEndPoint()
         end_point=start_point+AllplanGeo.Vector3D(24600,0,0)
-        N5t1=LinearBarBuilder.create_linear_bar_placement_from_to_by_dist(
-                20, shape,
+        angle_global_to_local     = AllplanGeo.Angle()
+        angle_global_to_local.Deg = -90
+        reinforce=[]
+        hooklength=((2765-155-2001-355)/2.0)
+        hookangle=135
+        profile,hooklength,hookangle=Createsteelshape.shape_N33_3_steel()
+
+        shape_props = ReinforcementShapeProperties.rebar(12,4,10,20, AllplanReinf.BendingShapeType.Freeform)
+        shape_mat = AllplanGeo.Matrix3D()
+        shape_mat.SetRotation(AllplanGeo.Line3D(0,0,0,0,1000,0), angle_global_to_local)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,hooklength,hookangle,hookangle)
+        
+        shape.Move(AllplanGeo.Vector3D(0,-38,-38))
+        N5t1=LinearBarBuilder.create_linear_bar_placement_from_to_by_count(
+                1, shape,
                 start_point,
                 end_point,
-                30, 30, 200,
+                30, 30, 275,
                 LinearBarBuilder.StartEndPlacementRule.AdditionalCover,
-                False)
-        reinforcement.append(N5t1)
-        return reinforcement
+                True)
+        reinforce.append(N5t1)
+        
+        N5t1l=LinearBarBuilder.create_linear_bar_placement_from_to_by_count(
+                1, shape,
+                start_point,
+                end_point,
+                30, 30, 275,
+                LinearBarBuilder.StartEndPlacementRule.AdditionalCover,
+                True)
+        N5t1l.Transform(matxz)
+        
+        reinforce.append(N5t1l)
+        return reinforce
 
     def create_steel_shape(self):
         allshapes=()
@@ -638,5 +658,32 @@ class BoxGirderPlus1():
         shape_builder.AddPoints([(outmain[4].GetEndPoint(),30),
             (outmain[3].GetEndPoint(),30),
             (outmain[2].GetEndPoint(),30),
-            (outmain[1].GetEndPoint(),30),(30)])
+            (outmain[1].GetEndPoint(),30)])
         return shape_builder
+
+    def create_profile(self):
+        outsect,outmain,outscale=self.create_common_outer_section_path()
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(outmain[4].GetEndPoint())
+        profile+=AllplanGeo.Point3D(outmain[3].GetEndPoint())
+        profile+=AllplanGeo.Point3D(outmain[2].GetEndPoint())
+        profile+=AllplanGeo.Point3D(outmain[1].GetEndPoint())
+        return profile
+
+    def create_profile1(self):
+        
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,0,-155+8)
+        profile+=AllplanGeo.Point3D()
+        profile+=AllplanGeo.Point3D(0,-355+8,0)
+        profile+=AllplanGeo.Point3D(0,-355-2000+8,-40)
+        return profile
+
+    def shape_N1_steel(self,base=7600,x=900,y=27,length=9750,diameter=22):
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,base/2+x,-y)
+        profile+=AllplanGeo.Point3D(0,base/2,0)
+        profile+=AllplanGeo.Point3D(0,-base/2,0)
+        profile+=AllplanGeo.Point3D(0,-base/2-x,-y)
+        hooklength=(length-base-math.sqrt(x*x+y*y)*2)/2
+        return profile,hooklength
