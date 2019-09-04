@@ -70,7 +70,7 @@ class Createsteelshape(object):
         profile+=AllplanGeo.Point3D(0,base/2,0)
         profile+=AllplanGeo.Point3D(0,-base/2,0)
         profile+=AllplanGeo.Point3D(0,-base/2-x,-y)
-        return profile,hooklength,135
+        return profile,hooklength,135,135
 
 
     def shape_N1_1_steel(base=1895,x=900,y=27,z=901,down=400,length=3544,diameter=22):
@@ -109,7 +109,9 @@ class Createsteelshape(object):
         N66-2 N14 N14-1 N14-2 N15 
         N19 N20 N35 N34-3 N31
         N66-3 N21-2 N21-3 N21-4 N21-7
-        N22-1 N32
+        N22-1 N32 N34 N34-2 N39
+        N41 N42 N43 N44 N44-1
+        N66-4
         '''
         profile = AllplanGeo.Polyline3D()
         profile+=AllplanGeo.Point3D(0,base/2+diameter/2,0)
@@ -301,34 +303,129 @@ class Createsteelshape(object):
 
 
 
-    def shape_N33_2_steel(up=180,left=1170,angle=81,length=1540,diameter=12):
+    def shape_N33_2_steel(up=180,left=1170,angle=81,length=1540,r=4,diameter=12):
         '''
         N33-2
         '''
         hooklength=(length-left-up)/2
         angle=angle/180*math.pi
-        up+=diameter/2
-        left+=diameter/2
+        up+=diameter/2+r+1
+        left+=diameter/2+r+1
         profile = AllplanGeo.Polyline3D()
         profile+=AllplanGeo.Point3D(0,left*math.sin(angle),left*math.cos(angle))
         profile+=AllplanGeo.Point3D()
         profile+=AllplanGeo.Point3D(0,0,up)
-        return profile,hooklength,-135
+        return profile,hooklength,-135,r
 
 
-    def shape_N33_3_steel(up=180,left=1170,angle=81,length=1540,diameter=12):
+
+    def shape_N38_steel(base=250,x=300,y=75,z=309,length=956,diameter=12):
         '''
-        N33-1
+        N38
         '''
-        hooklength=(length-left-up)/2
-        angle=angle/180*math.pi
-        up+=diameter/2
-        left+=diameter/2
+        hooklength=(length-base-z*2)/2
+        x,y=z/math.sqrt(x*x+y*y)*x,z/math.sqrt(x*x+y*y)*y
         profile = AllplanGeo.Polyline3D()
-        profile+=AllplanGeo.Point3D(0,left,0)
+        profile+=AllplanGeo.Point3D(0,-x,y+base/2)
+        profile+=AllplanGeo.Point3D(0,0,base/2)
+        profile+=AllplanGeo.Point3D(0,0,-base/2)
+        profile+=AllplanGeo.Point3D(0,-x,-y-base/2)
+        return profile,-1,-135
+
+
+
+    def shape_N40_steel(left=1845,right=1851,angle=176,length=3886,diameter=12):
+        '''
+        N40
+        '''
+        hooklength=(length-left-right)/2
+        angle=angle/180*math.pi
+        left+=diameter/2
+        right+=diameter/2
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,-left*math.cos(angle),-left*math.sin(angle))
         profile+=AllplanGeo.Point3D()
-        profile+=AllplanGeo.Point3D(0,up*math.cos(angle),up*math.sin(angle))
-        return profile,hooklength,-135
+        profile+=AllplanGeo.Point3D(0,-right,0)
+        return profile,hooklength,135
 
- 
 
+    def shape_N45_steel(base=226,length=452,diameter=12):
+        '''
+        N45 N46 N47 N48 N48-1
+        N49 N50 N51 N52 N53
+        N54 N55 N56
+        '''
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,base/2+diameter/2,0)
+        profile+=AllplanGeo.Point3D(0,-base/2-diameter/2,0)
+        hooklength=(length-base)/2
+        return profile,hooklength,-135,-90
+
+
+    def shape_N64_steel(base=112,down=156,length=524,diameter=8):
+        '''
+        N64
+        '''
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,base/2,-down-diameter/2)
+        profile+=AllplanGeo.Point3D(0,base/2,0)
+        profile+=AllplanGeo.Point3D(0,-base/2,0)
+        profile+=AllplanGeo.Point3D(0,-base/2,-down-diameter/2)
+        hooklength=(length-base-down*2)/2
+        return profile,hooklength,180,180
+
+
+    def shape_N65_steel(base=12530,length=12630,diameter=8):
+        '''
+        N65
+        '''
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,base/2+diameter/2,0)
+        profile+=AllplanGeo.Point3D(0,-base/2-diameter/2,0)
+        hooklength=(length-base)/2
+        return profile,hooklength,-180,-180
+
+
+    def shape_N6_steel(a=337,b=5032,c=2840,d=2755,e=689,f=200,r=254,length=11786,diameter=20):
+        '''
+        N6 N6-1 N6-2 N12
+        '''
+        #todo modify
+        hooklength=-1
+        angle=math.atan(d/e)
+        r=a/angle
+        newangle=angle/2
+        s=r*math.tan(newangle)  #求切线长
+        b+=2*s
+        c+=s
+        d,e=c/math.sqrt(d*d+e*e)*d,c/math.sqrt(d*d+e*e)*e
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,b/2+e-f,d)
+        profile+=AllplanGeo.Point3D(0,b/2+e,d)
+        profile+=AllplanGeo.Point3D(0,b/2,0)
+        profile+=AllplanGeo.Point3D(0,-b/2,0)
+        profile+=AllplanGeo.Point3D(0,-b/2-e,d)
+        profile+=AllplanGeo.Point3D(0,-b/2-e+f,d)
+        return profile,-1,0,0
+
+
+    def shape_N16_steel(xlength=890,width=561,length=3172,diameter=16):
+        '''
+        N16 N16-1 N17 N17-1 N18等钢筋形状
+        xlength:箍筋横向长度
+        width：箍筋宽度
+        length:钢筋总长
+        diameter：钢筋直径
+        函数生成成型点
+        '''
+        hooklength=(length-xlength*2-width*2)/2
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,0,hooklength)
+        profile+=AllplanGeo.Point3D(0,0,-width)
+        profile+=AllplanGeo.Point3D(0,-xlength,-width)
+        profile+=AllplanGeo.Point3D(0,-xlength,0)
+        profile+=AllplanGeo.Point3D(0,hooklength,0)
+        return profile,hooklength
+        
+        
+        

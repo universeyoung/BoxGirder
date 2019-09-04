@@ -12,6 +12,8 @@ import NemAll_Python_Reinforcement as AllplanReinf
 from PythonPart import View2D3D, PythonPart
 from JunheModels.util.createsteelshape import Createsteelshape
 import StdReinfShapeBuilder.ProfileReinfShapeBuilder as ProfileShapeBuilder
+import StdReinfShapeBuilder.GeneralReinfShapeBuilder as GeneralShapeBuilder
+from StdReinfShapeBuilder.ConcreteCoverProperties import ConcreteCoverProperties
 from StdReinfShapeBuilder.ReinforcementShapeProperties import ReinforcementShapeProperties
 
 print('Load BoxGirderPlus1.py successfully')
@@ -68,9 +70,6 @@ def move_handle(build_ele, handle_prop, input_pnt, doc):
     return element.create(build_ele)
 
 
-
-
-
 class BoxGirderPlus1():
     """
     Definition of class BoxGirderPlus1
@@ -106,7 +105,9 @@ class BoxGirderPlus1():
         """
         self.data_read(build_ele.get_parameter_dict())
         polyhedron = self.create_geometry()
+        spiral=self.create_spiral_reinforcement()
         reinforcement = self.create_reinforcement()
+        polyhedron.append(spiral)
         views = [View2D3D(polyhedron)]
         pythonpart = PythonPart('BoxGirderPlus1', parameter_list=(build_ele.get_params_list()),
           hash_value=(build_ele.get_hash()),
@@ -117,6 +118,7 @@ class BoxGirderPlus1():
         if self.py:
             self.model_ele_list = pythonpart.create()
         else:
+            polyhedron+=reinforcement
             self.model_ele_list = polyhedron
         return (self.model_ele_list, self.handle_list)
 
@@ -318,6 +320,7 @@ class BoxGirderPlus1():
             errsub,GirderPlus=AllplanGeo.MakeSubtraction(GirderPlus,swihcy[i])
         com_prop = AllplanBaseElements.CommonProperties()
         com_prop.GetGlobalProperties()
+        
         #是否显示区域块
         
         model_ele_list=[]
@@ -614,76 +617,65 @@ class BoxGirderPlus1():
         angle_global_to_local.Deg = -90
         reinforce=[]
         hooklength=((2765-155-2001-355)/2.0)
-        hookangle=135
-        profile,hooklength,hookangle=Createsteelshape.shape_N33_3_steel()
-
-        shape_props = ReinforcementShapeProperties.rebar(12,4,10,20, AllplanReinf.BendingShapeType.Freeform)
+        starthookangle=135
+        endhookangle=135
+        r=4
+        #N1
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N1_steel()
+        shape_props = ReinforcementShapeProperties.rebar(22,r,10,20, AllplanReinf.BendingShapeType.Freeform)
         shape_mat = AllplanGeo.Matrix3D()
         shape_mat.SetRotation(AllplanGeo.Line3D(0,0,0,0,1000,0), angle_global_to_local)
         shape = ProfileShapeBuilder.create_profile_shape(profile,
                                                            shape_mat,
                                                            shape_props,
-                                                           0,hooklength,hooklength,hookangle,hookangle)
-        
-        shape.Move(AllplanGeo.Vector3D(0,-38,-38))
-        N5t1=LinearBarBuilder.create_linear_bar_placement_from_to_by_count(
+                                                           0,hooklength,hooklength,starthookangle,endhookangle)
+        shape.Move(AllplanGeo.Vector3D(0,0,-35-22/2))
+        start_point=outmain[0].GetStartPoint()
+        position_point=start_point+AllplanGeo.Vector3D(1000,0,0)
+        N1=LinearBarBuilder.create_linear_bar_placement_from_by_dist_count(
                 1, shape,
                 start_point,
-                end_point,
-                30, 30, 275,
-                LinearBarBuilder.StartEndPlacementRule.AdditionalCover,
-                True)
-        reinforce.append(N5t1)
+                position_point,
+                50-22/2, 100, 24)
+        reinforce.append(N1)
+
         
-        N5t1l=LinearBarBuilder.create_linear_bar_placement_from_to_by_count(
+        #N16
+        profile,hooklength=Createsteelshape.shape_N16_steel()
+        shape_props = ReinforcementShapeProperties.rebar(16,r,10,20, AllplanReinf.BendingShapeType.Stirrup)
+        stirrup = AllplanReinf.StirrupType.FullCircle
+        shape = ProfileShapeBuilder.create_profile_stirrup(profile,
+                                                           shape_mat,
+                                                           shape_props,0,stirrup)
+        shape.Move(AllplanGeo.Vector3D(0,0,-35-22/2))
+        start_point=outmain[0].GetStartPoint()
+        position_point=start_point+AllplanGeo.Vector3D(1000,0,0)
+        N16=LinearBarBuilder.create_linear_bar_placement_from_by_dist_count(
                 1, shape,
                 start_point,
-                end_point,
-                30, 30, 275,
-                LinearBarBuilder.StartEndPlacementRule.AdditionalCover,
-                True)
-        N5t1l.Transform(matxz)
-        
-        reinforce.append(N5t1l)
+                position_point,
+                50-22/2, 100, 24)
+        reinforce.append(N16)
+       
         return reinforce
 
-    def create_steel_shape(self):
-        allshapes=()
-        angle_global_to_local     = AllplanGeo.Angle()
-        angle_global_to_local.Deg = -90
-        outsect,outmain,outscale=self.create_common_outer_section_path()
-        shape_mat = AllplanGeo.Matrix3D()
-        shape_mat.SetRotation(outmain[3], angle_global_to_local)
-        shape_builder = AllplanReinf.ReinforcementShapeBuilder(shape_mat)
-        shape_builder.AddPoints([(outmain[4].GetEndPoint(),30),
-            (outmain[3].GetEndPoint(),30),
-            (outmain[2].GetEndPoint(),30),
-            (outmain[1].GetEndPoint(),30)])
-        return shape_builder
+    def create_spiral_reinforcement(self):
 
-    def create_profile(self):
-        outsect,outmain,outscale=self.create_common_outer_section_path()
-        profile = AllplanGeo.Polyline3D()
-        profile+=AllplanGeo.Point3D(outmain[4].GetEndPoint())
-        profile+=AllplanGeo.Point3D(outmain[3].GetEndPoint())
-        profile+=AllplanGeo.Point3D(outmain[2].GetEndPoint())
-        profile+=AllplanGeo.Point3D(outmain[1].GetEndPoint())
-        return profile
+        #N57
+        rotation_axis = AllplanGeo.Line3D(AllplanGeo.Point3D(0, 0, 0),
+                                          AllplanGeo.Point3D(0, 0, 330+8*3))
 
-    def create_profile1(self):
-        
-        profile = AllplanGeo.Polyline3D()
-        profile+=AllplanGeo.Point3D(0,0,-155+8)
-        profile+=AllplanGeo.Point3D()
-        profile+=AllplanGeo.Point3D(0,-355+8,0)
-        profile+=AllplanGeo.Point3D(0,-355-2000+8,-40)
-        return profile
+        contour = AllplanGeo.Polyline3D()
+        contour += AllplanGeo.Point3D(0, -170/2, 0)
+        contour += AllplanGeo.Point3D(0, -170/2, 330+8*3)
 
-    def shape_N1_steel(self,base=7600,x=900,y=27,length=9750,diameter=22):
-        profile = AllplanGeo.Polyline3D()
-        profile+=AllplanGeo.Point3D(0,base/2+x,-y)
-        profile+=AllplanGeo.Point3D(0,base/2,0)
-        profile+=AllplanGeo.Point3D(0,-base/2,0)
-        profile+=AllplanGeo.Point3D(0,-base/2-x,-y)
-        hooklength=(length-base-math.sqrt(x*x+y*y)*2)/2
-        return profile,hooklength
+        spiral = AllplanReinf.SpiralElement(3, 8, 10, 20,
+                                            rotation_axis, contour, 60, 0,
+                                            0, 0, 0,
+                                            0, 0,  0)
+        spiral.SetPlacePerLinearMeter(True)
+        spiral.SetNumberLoopsStart(1)
+        spiral.SetNumberLoopsEnd(1)
+        spiral.SetCommonProperties(self.com_prop)
+
+        return spiral
