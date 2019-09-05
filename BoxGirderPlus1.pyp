@@ -219,7 +219,7 @@
       <Name>dis04</Name>
       <Text>dis04</Text>
 		  <TextId>1505</TextId>
-      <Value>12300</Value>
+      <Value>16300</Value>
       <Visible>secnum>4</Visible>
       <ValueType>Length</ValueType>
     </Parameter>
@@ -2407,6 +2407,35 @@
       </Parameter>
     </Parameter>
   </Page>
+
+  <Page>
+    <Name>Page5</Name>
+    <Text>ReinfControl</Text>
+	<TextId>2000</TextId>
+	<Parameter>
+
+            <Name>ConcreteGrade</Name>
+
+            <Text>Reinforcement concrete grade</Text>
+
+            <Value>5</Value>
+
+            <ValueType>ReinfConcreteGrade</ValueType>
+
+    </Parameter>
+	<Parameter>
+
+            <Name>StirSteelGrade</Name>
+
+            <Text>Reinforcement steel grade</Text>
+
+            <Value>5</Value>
+
+            <ValueType>ReinfSteelGrade</ValueType>
+
+    </Parameter>
+  </Page>
+
   <Page>
     <Name>PageX</Name>
     <Text>SectionControl</Text>
