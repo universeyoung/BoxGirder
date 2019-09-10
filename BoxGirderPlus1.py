@@ -175,24 +175,29 @@ class BoxGirderPlus1():
 
     def get_combine_barplacement(self,barplacement,pnum,shape):
         '''
-        barplacement:Barplacement
+        barplacement:Barplacement(列表)
         pnum:生成的铺设编号
         shape:配套钢筋形状
         vector:配套钢筋
-        根据已有Barplacement得到配套钢筋的Barplacement
+        根据已有Barplacement（列表）得到配套钢筋的Barplacement列表
         '''
-        start_point=barplacement.GetStartPoint()
-        distance_Vec=barplacement.GetDistanceVector()
-        position_point=AllplanGeo.Move(start_point,distance_Vec)
-        barcount=barplacement.GetBarCount()
-        veclength=distance_Vec.GetLength()
-        diameter=shape.GetDiameter()
-        newele=LinearBarBuilder.create_linear_bar_placement_from_by_dist_count(
-                pnum, shape,
-                start_point,
-                position_point,
-                -diameter/2, veclength, barcount,True)
-        return newele
+        if not isinstance(barplacement, list):
+            barplacement=[barplacement]
+        bar=[]
+        for i in range(0,len(barplacement)):
+            start_point=barplacement[i].GetStartPoint()
+            distance_Vec=barplacement[i].GetDistanceVector()
+            position_point=AllplanGeo.Move(start_point,distance_Vec)
+            barcount=barplacement[i].GetBarCount()
+            veclength=distance_Vec.GetLength()
+            diameter=shape.GetDiameter()
+            newele=LinearBarBuilder.create_linear_bar_placement_from_by_dist_count(
+                    pnum, shape,
+                    start_point,
+                    position_point,
+                    -diameter/2, veclength, barcount,True)
+            bar.append(newele)
+        return bar
 
     def create_geometry(self):
         """
@@ -277,6 +282,7 @@ class BoxGirderPlus1():
             midlist.append(mid)
             uplist.append(up)
             charmferlist.append(charmfer)
+        self.uplist=uplist
         matxz=AllplanGeo.Matrix3D()
         matxz.Reflection(AllplanGeo.Plane3D(AllplanGeo.Point3D(0, 0, 0),AllplanGeo.Point3D(0, 0, 1),AllplanGeo.Point3D(1, 0, 0)))
         inners=[]
@@ -416,12 +422,27 @@ class BoxGirderPlus1():
         self.bartopmidlist=self.polyline3d_reverse_longthen(self.bartopmidlist)
         self.barbottommidlist=self.polyline3d_reverse_longthen(self.barbottommidlist)
         self.bartoptoplist=AllplanGeo.Line3D(0,0,height,2*halflength,0,height)
-        self.barbottombottomlist=AllplanGeo.Line3D(0,0,0,2*halflength,0,0)
+        self.barbottombottomlist=AllplanGeo.Line3D(0,0,50,2*halflength,0,50)
         #完整的铺设线（加梁跨中心镜像）
         self.bartoptoplist=self.line3d_to_polyline3d(self.bartoptoplist)
         self.barbottombottomlist=self.line3d_to_polyline3d(self.barbottombottomlist)
         self.barinupcharmlist=self.polyline3d_reverse_longthen(self.barinupcharmlist)
         self.barindowncharmlist=self.polyline3d_reverse_longthen(self.barindowncharmlist)
+
+        #N33系铺设线
+        line=AllplanGeo.Line3D(outermain[6])
+        line3=AllplanGeo.Move(line,AllplanGeo.Vector3D(self.dis03,0,0))
+        in3=AllplanGeo.Line3D(self.uplist[3][2],self.uplist[3][1])
+        polyline3=self.get_polyline_from_lines(line3,in3)
+        polyline3=self.polyline3d_offset(polyline3,-35-12/2,x=self.dis03,type=0)
+        line4=AllplanGeo.Move(line,AllplanGeo.Vector3D(self.dis04,0,0))
+        in4=AllplanGeo.Line3D(self.uplist[4][2],self.uplist[4][1])
+        polyline4=self.get_polyline_from_lines(line4,in4)
+        polyline4=self.polyline3d_offset(polyline4,-35-12/2,x=self.dis04,type=0)
+        n33barline=AllplanGeo.Polyline3D()
+        n33barline+=polyline3[1]
+        n33barline+=polyline4[1]
+        self.n33barline=self.polyline3d_reverse_longthen(n33barline)
         #是否显示区域块
         
         model_ele_list=[]
@@ -430,6 +451,7 @@ class BoxGirderPlus1():
         model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.bottommidlist))
         model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.barbottommidlist))
         model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.barinupcharmlist))
+        model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.n33barline))
         if not errcomb and GirderPlus.IsValid:
             model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,GirderPlus))
         if self.blockvis:
@@ -1163,21 +1185,9 @@ class BoxGirderPlus1():
         shape.Rotate(RotationAngles(0,180,0))
         shape.Move(AllplanGeo.Vector3D(0,7600/2-1895,22/2))
         N2_1=self.get_combine_barplacement(N1_21,5,shape)
-        reinforce.append(N2_1)
-        N2_1c=self.reflection_barplacement(N2_1,True,1)
-        reinforce.append(N2_1c)
-        N2_1r=self.reflection_barplacement(N2_1,True,0)
-        reinforce.append(N2_1r)
-        N2_1cr=self.reflection_barplacement(N2_1r,True,1)
-        reinforce.append(N2_1cr)
+        reinforce+=self.copy_barplacement(N2_1,True,2)
         N2_2=self.get_combine_barplacement(N1_22,5,shape)
-        reinforce.append(N2_2)
-        N2_2c=self.reflection_barplacement(N2_2,True,1)
-        reinforce.append(N2_2c)
-        N2_2r=self.reflection_barplacement(N2_2,True,0)
-        reinforce.append(N2_2r)
-        N2_2cr=self.reflection_barplacement(N2_2r,True,1)
-        reinforce.append(N2_2cr)
+        reinforce+=self.copy_barplacement(N2_2,True,2)
         '''N14系 共4排 
         第一排 起始偏移50 钢筋间距100 1根N14-1 2根N14 铺设线：顶板顶层中心线向下偏移某值；
         第二排 起始偏移50 钢筋间距100 3根N14 铺设线：顶板顶层中心线向下偏移某值；
@@ -1284,14 +1294,149 @@ class BoxGirderPlus1():
                                                            shape_mat,
                                                            shape_props,
                                                            0,hooklength,hooklength,starthookangle,endhookangle)
-        shape.Move(AllplanGeo.Vector3D(0,-1200/2-60,0))
+        angle=math.atan(self.q40/self.c40)
+        shape.Rotate(RotationAngles(angle*180/math.pi,0,0))
+        shape.Move(self.vector_on_slope(angle,-(1200/2+60),35+16/2))
         wing=outmain[5].GetStartPoint()
         wingpoly=self.get_polyline_from_point(wing)
         N31=self.div_barplacement_on_polyline(63,shape,[50,125,125],[100,125,100],[46,94*2-1,46],wingpoly)
         reinforce+=self.copy_barplacement(N31,True,0)
+        '''
+        N32 N33系
+        N32 起始偏移50 间距100 24根 偏移100 顺接N33系 铺设同时关于梁跨中心和梁体中心对称
+        N33系 N33 起始偏移2450 间距100 22根 偏移125  间距125 13根N33 1组N33-1和N33-2 53根N33 1组N33-1和N33-2 26根N33 铺设同时关于梁跨中心和梁体中心对称
+        总计： N33：（（22+13+53+26）*2-1）*2=454根（图纸为462根） N33-1:8根 N33-2:8根 N32:24*4=96根
+        '''
+        #N32
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N2_steel(base=2850,length=3040,diameter=12)
+        shape_props = ReinforcementShapeProperties.rebar(12,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.LongitudinalBar)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,hooklength,starthookangle,endhookangle)
+        angle=math.atan(self.q30/self.c30)
+        shape.Rotate(RotationAngles(angle*180/math.pi,0,0))
+        shape.Move(self.vector_on_slope(angle,-(2850/2-300),35+12/2))
+        wing=outmain[6].GetStartPoint()
+        wingpoly=self.get_polyline_from_point(wing)
+        N32=self.div_barplacement_on_polyline(64,shape,[50],[100],[24],wingpoly)
+        reinforce+=self.copy_barplacement(N32,True,2)
+        #N33
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N33_steel()
+        shape_props = ReinforcementShapeProperties.rebar(12,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Freeform)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,hooklength,starthookangle,endhookangle)
+        N33=self.div_barplacement_on_polyline(65,shape,[2450-self.dis03,125,2*125,2*125,2*125,2*125,125],[100,125,125,125,125,125,100],[22,13,53,51,53,13,22],self.n33barline)
+        reinforce+=self.copy_barplacement(N33,True,0)
+        #N33-1
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N33_1_steel()
+        shape_props = ReinforcementShapeProperties.rebar(12,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Freeform)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,hooklength,starthookangle,endhookangle)
+        N33_1=self.div_barplacement_on_polyline(66,shape,[self.halflength-self.dis03-80*125,(80-26)*125],[125,125],[1,1],self.n33barline)
+        reinforce+=self.copy_barplacement(N33_1,True,2)
+        #N33-2
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N33_2_steel()
+        shape_props = ReinforcementShapeProperties.rebar(12,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Freeform)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,hooklength,starthookangle,endhookangle)
+        angle=math.atan(self.q30/self.c30)
+        shape.Move(self.vector_on_slope(angle,1565,0))
+        N33_2=self.div_barplacement_on_polyline(67,shape,[self.halflength-self.dis03-80*125,(80-26)*125],[125,125],[1,1],self.n33barline)
+        reinforce+=self.copy_barplacement(N33_2,True,2)
+        #N44系铺设线
+        n44p,anglen44=self.get_point_and_angle_from_offset_arc3d(outscale[9],35+20/2)
+        n44bar=self.get_polyline_from_point(n44p)
+        #N44-3
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N2_steel(base=900,length=1216,diameter=20)
+        shape_props = ReinforcementShapeProperties.rebar(20,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.LongitudinalBar)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,hooklength,starthookangle,endhookangle)
+        shape.Rotate(RotationAngles(-anglen44,0,0))
+        N44_3=self.div_barplacement_on_polyline(85,shape,[50],[100],[1],n44bar)
+        reinforce+=self.copy_barplacement(N44_3,True,2)
+        #N44-1
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N2_steel(base=900,length=1090,diameter=12)
+        shape_props = ReinforcementShapeProperties.rebar(12,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.LongitudinalBar)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,hooklength,starthookangle,endhookangle)
+        shape.Rotate(RotationAngles(-anglen44,0,0))
+        N44_1=self.div_barplacement_on_polyline(83,shape,[150,125,100],[100,125,100],[45,187,45],n44bar)
+        reinforce+=self.copy_barplacement(N44_1,True,0) 
+        '''
+        N12系 同N5系 N12--N5  1根N12-1配2根N12-2 取代其余N5系
+        '''
+        #N12
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N6_steel(a=338,b=5032,c=2841,d=2757,e=689,f=180,r=255,length=11750,diameter=18)
+        shape_props = ReinforcementShapeProperties.rebar(18,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Freeform)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,hooklength,starthookangle,endhookangle)
+        N12=self.div_barplacement_on_polyline(24,shape,dislistn5,bardislistn5,barcountlistn5,self.barbottombottomlist)
+        reinforce+=N12
+        #N12-2
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N1_2_steel(base=1185,down=180,length=1831,diameter=18)
+        shape_props = ReinforcementShapeProperties.rebar(18,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Freeform)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,hooklength,starthookangle,endhookangle)
+        shape.Rotate(RotationAngles(180,0,0))
+        N12_2=self.div_barplacement_on_polyline(26,shape,[4550,13*125,5000,1750],[125,125,125,125],[2,1,1,1],self.barbottombottomlist)
+        reinforce+=self.copy_barplacement(N12_2,True,1)
+        #N12-1 搭配N12-2
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N12_1_steel()
+        shape_props = ReinforcementShapeProperties.rebar(18,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Freeform)
+        shape = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,-1,starthookangle,endhookangle)
+        shape.Move(AllplanGeo.Vector3D(0,5032/2-1700,0))
+        N12_1=self.get_combine_barplacement(N12_2,25,shape)
+        reinforce+=self.copy_barplacement(N12_1,True,2)
+        '''
+        N6系
+        N6-1 起始偏移350 间距100 12根 偏移100 顺接N6-2 间距100 6根 偏移100 顺接N6 间距100 4根 铺设关于梁跨中心对称
+        总计： N6：4*2=8根 N6-1:12*2=24根 N6-2:6*2=12根 (图纸为28根)
+        '''
+        #N6系
+        #N6
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N6_steel()
+        shape_props = ReinforcementShapeProperties.rebar(20,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Freeform)
+        shapen6 = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,-1,starthookangle,endhookangle)
+        N6=self.div_barplacement_on_polyline(15,shapen6,[2150],[100],[4],self.barbottombottomlist)
+        reinforce+=self.copy_barplacement(N6,True,1)
+        #N6-1
+        profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N6_steel(a=72,b=5344,c=2996,d=2906,e=727,f=200,r=54,length=11880,diameter=20)
+        shape_props = ReinforcementShapeProperties.rebar(20,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Freeform)
+        shapen6_1 = ProfileShapeBuilder.create_profile_shape(profile,
+                                                           shape_mat,
+                                                           shape_props,
+                                                           0,hooklength,-1,starthookangle,endhookangle)
+        N6_1=self.div_barplacement_on_polyline(16,shapen6_1,[350],[100],[12],self.barbottombottomlist)
+        reinforce+=self.copy_barplacement(N6_1,True,1)
+        #N6-2
+        shapen6_1.Move(AllplanGeo.Vector3D(1550,0,50))
+        shapen6.Move(AllplanGeo.Vector3D(2050,0,50))
+        N6_2=AllplanReinf.BarPlacement(17,6,shapen6_1,shapen6)
+        reinforce+=self.copy_barplacement(N6_2,False,1)
         #N16
         profile,hooklength=Createsteelshape.shape_N16_steel()
-        shape_props = ReinforcementShapeProperties.rebar(16,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Stirrup)
+        shape_props = ReinforcementShapeProperties.rebar(18,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.Stirrup)
         stirrup = AllplanReinf.StirrupType.FullCircle
         shape = ProfileShapeBuilder.create_profile_stirrup(profile,
                                                            shape_mat,
@@ -1329,25 +1474,27 @@ class BoxGirderPlus1():
 
         return spiral
 
-    def polyline2d_to_3d(self,polyline2d):
+    def polyline2d_to_3d(self,polyline2d,x=0,y=0,z=0,type=1):
         '''
+        type:转换类型 为0：补充x轴坐标；为1：补充y轴坐标；其他：补充z轴坐标。
         2d点集转3d
         '''
         polyline3d=AllplanGeo.Polyline3D()
         for i in range(0,polyline2d.Count()):
             point2d=polyline2d[i]
-            point3d=self.point2d_to_3d(point2d)
+            point3d=self.point2d_to_3d(point2d,x,y,z,type)
             polyline3d+=point3d
         return polyline3d
 
-    def polyline3d_to_2d(self,polyline3d):
+    def polyline3d_to_2d(self,polyline3d,type=1):
         '''
+        type:省略类型 为0：省去x轴坐标；为1：省去y轴坐标；其他：省去z轴坐标。
         3d点集转2d
         '''
         polyline2d=AllplanGeo.Polyline2D()
         for i in range(0,polyline3d.Count()):
             point3d=polyline3d[i]
-            point2d=self.point3d_to_2d(point3d)
+            point2d=self.point3d_to_2d(point3d,type)
             polyline2d+=point2d
         return polyline2d
 
@@ -1377,13 +1524,13 @@ class BoxGirderPlus1():
         else:
             return AllplanGeo.Point2D(x,y)
 
-    def polyline3d_offset(self,polyline3d,offset):
+    def polyline3d_offset(self,polyline3d,offset,x=0,y=0,z=0,type=1):
         '''
         根据点集和偏移距离，生成新的点集
         '''
-        polyline2d=self.polyline3d_to_2d(polyline3d)
+        polyline2d=self.polyline3d_to_2d(polyline3d,type)
         err1,newpolyline2d=AllplanGeo.Offset(offset,polyline2d,False)
-        newpolyline3d=self.polyline2d_to_3d(newpolyline2d)
+        newpolyline3d=self.polyline2d_to_3d(newpolyline2d,x,y,z,type)
         return newpolyline3d
 
     def line3d_to_vector3d(self,line3d):
@@ -1510,7 +1657,7 @@ class BoxGirderPlus1():
         '''
         if not isinstance(barplacement, list):
             barplacement=[barplacement]
-        barplacementlist=barplacement
+        barplacementlist=[]
         barplacementxz=[]
         barplacementx=[]
         barplacemento=[]
@@ -1521,6 +1668,7 @@ class BoxGirderPlus1():
             barplacementxz.append(xz)
             barplacementx.append(x)
             barplacemento.append(o)
+        barplacementlist+=barplacement
         if (type==0):
             barplacementlist+=barplacementxz
         elif (type==1):
@@ -1607,4 +1755,30 @@ class BoxGirderPlus1():
         endpoint=point+AllplanGeo.Vector3D(2*self.halflength,0,0)
         polyline+=point
         polyline+=endpoint
+        return polyline
+
+    def vector_on_slope(self,angle,x,y):
+        '''
+        angle为yz平面上斜坡（起点为原点）与x轴正方向夹角（斜向下为正）,
+        x为沿斜坡横向移动距离
+        y为沿斜坡纵向移动距离
+        生成在斜坡坐标为（x,y）的点的真实偏移向量
+        '''
+        vector1=AllplanGeo.Vector3D(0,x*math.cos(angle),x*math.sin(angle))
+        vector2=AllplanGeo.Vector3D(0,-y*math.sin(angle),y*math.cos(angle))
+        vector=vector1+vector2
+        return vector
+
+    def get_polyline_from_lines(self,line1,line2):
+        '''
+        两线段，第一条线段延伸一定距离，第二条线段反向延伸一定距离，求交点，返回相交后的折线;若无交点，返回两线段起点终点连线
+        '''
+        line1.TrimEnd(-5000)
+        line2.TrimStart(-5000)
+        bool,intersec=AllplanGeo.IntersectionCalculus(line1,line2)
+        polyline=AllplanGeo.Polyline3D()
+        polyline+=line1.StartPoint
+        if bool:
+            polyline+=intersec
+        polyline+=line2.EndPoint
         return polyline
