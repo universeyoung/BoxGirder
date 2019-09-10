@@ -302,10 +302,10 @@ class Createsteelshape(object):
         up+=diameter/2
         right+=diameter/2
         profile = AllplanGeo.Polyline3D()
-        profile+=AllplanGeo.Point3D(0,0,up)
+        profile+=AllplanGeo.Point3D(0,left*math.sin(leftangle),up-left*math.cos(leftangle))
+        profile+=AllplanGeo.Point3D(0,left*math.sin(leftangle),-left*math.cos(leftangle))
         profile+=AllplanGeo.Point3D()
-        profile+=AllplanGeo.Point3D(0,-left*math.sin(leftangle),left*math.cos(leftangle))
-        profile+=AllplanGeo.Point3D(0,-left*math.sin(leftangle)-right*math.sin(angle),left*math.cos(leftangle)+right*math.cos(angle))
+        profile+=AllplanGeo.Point3D(0,-right*math.sin(angle),right*math.cos(angle))
         return profile,hooklength,-135,-135
 
 
@@ -416,6 +416,29 @@ class Createsteelshape(object):
         return profile,-1,0,0
 
 
+    def shape_N12_1_steel(a=338,base=1700,c=2841,d=2757,e=689,f=180,r=255,length=5382,up=180,diameter=18):
+        '''
+        N12-1
+        '''
+        #todo modify
+        hooklength=length-a-base-c-f-up
+        up+=diameter/2
+        angle=math.atan(d/e)
+        r=a/angle
+        newangle=angle/2
+        s=r*math.tan(newangle)  #求切线长
+        base+=s
+        c+=s
+        d,e=c/math.sqrt(d*d+e*e)*d,c/math.sqrt(d*d+e*e)*e
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,0,up)
+        profile+=AllplanGeo.Point3D()
+        profile+=AllplanGeo.Point3D(0,base,0)
+        profile+=AllplanGeo.Point3D(0,base+e,d)
+        profile+=AllplanGeo.Point3D(0,base+e-f,d)
+        return profile,hooklength,135,0
+
+
     def shape_N16_steel(xlength=890,width=561,length=3172,diameter=16):
         '''
         N16 N16-1 N17 N17-1 N18等钢筋形状
@@ -434,5 +457,112 @@ class Createsteelshape(object):
         profile+=AllplanGeo.Point3D(0,hooklength,0)
         return profile,hooklength
         
-        
+    shape_dic={
+        'N1':shape_N1_steel,
+        'N5':shape_N1_steel,
+        'N1-1':shape_N1_1_steel,
+        'N5-4':shape_N1_1_steel,
+        'N1-2':shape_N1_2_steel,
+        'N12-2':shape_N1_2_steel,
+        'N35-2':shape_N1_2_steel,
+        'N21-5':shape_N1_2_steel,
+        'N21-6':shape_N1_2_steel,
+        'N21-8':shape_N1_2_steel,
+        'N21-9':shape_N1_2_steel,
+        'N22-2':shape_N1_2_steel,
+        'N22-3':shape_N1_2_steel,
+        'N22-4':shape_N1_2_steel,
+        'N2':shape_N2_steel,
+        'N3':shape_N2_steel,
+        'N3-1':shape_N2_steel,
+        'N4':shape_N2_steel,
+        'N44-2':shape_N2_steel,
+        'N66-1':shape_N2_steel,
+        'N10-1':shape_N2_steel,
+        'N9-1':shape_N2_steel,
+        'N10':shape_N2_steel,
+        'N34-1':shape_N2_steel,
+        'N44-3':shape_N2_steel,
+        'N66-2':shape_N2_steel,
+        'N14':shape_N2_steel,
+        'N14-1':shape_N2_steel,
+        'N14-2':shape_N2_steel,
+        'N15':shape_N2_steel,
+        'N19':shape_N2_steel,
+        'N20':shape_N2_steel,
+        'N35':shape_N2_steel,
+        'N34-3':shape_N2_steel,
+        'N31':shape_N2_steel,
+        'N66-3':shape_N2_steel,
+        'N21-2':shape_N2_steel,
+        'N21-3':shape_N2_steel,
+        'N21-4':shape_N2_steel,
+        'N21-7':shape_N2_steel,
+        'N22-1':shape_N2_steel,
+        'N32':shape_N2_steel,
+        'N34':shape_N2_steel,
+        'N34-2':shape_N2_steel,
+        'N39':shape_N2_steel,
+        'N41':shape_N2_steel,
+        'N42':shape_N2_steel,
+        'N45':shape_N2_steel,
+        'N44':shape_N2_steel,
+        'N44-1':shape_N2_steel,
+        'N66-4':shape_N2_steel,
+        'N2-1':shape_N2_1_steel,
+        'N21-4':shape_N2_1_steel,
+        'N2-2':shape_N2_2_steel,
+        'N5-2':shape_N5_2_steel,
+        'N5-3':shape_N5_3_steel,
+        'N7':shape_N7_steel,
+        'N8':shape_N7_steel,
+        'N5-1':shape_N5_1_steel,
+        'N14-3':shape_N14_3_steel,
+        'N35-1':shape_N14_3_steel,
+        'N21':shape_N21_steel,
+        'N21-1':shape_N21_steel,
+        'N22':shape_N21_steel,
+        'N23':shape_N21_steel,
+        'N24':shape_N21_steel,
+        'N25':shape_N21_steel,
+        'N26':shape_N21_steel,
+        'N27':shape_N27_steel,
+        'N28':shape_N27_steel,
+        'N29':shape_N27_steel,
+        'N30':shape_N27_steel,
+        'N27-1':shape_N27_1_steel,
+        'N33':shape_N33_steel,
+        'N33-1':shape_N33_1_steel,
+        'N33-2':shape_N33_2_steel,
+        'N38':shape_N38_steel,
+        'N40':shape_N40_steel,
+        'N45':shape_N45_steel,
+        'N46':shape_N45_steel,
+        'N47':shape_N45_steel,
+        'N48':shape_N45_steel,
+        'N48-1':shape_N45_steel,
+        'N49':shape_N45_steel,
+        'N50':shape_N45_steel,
+        'N51':shape_N45_steel,
+        'N52':shape_N45_steel,
+        'N53':shape_N45_steel,
+        'N54':shape_N45_steel,
+        'N55':shape_N45_steel,
+        'N56':shape_N45_steel,
+        'N64':shape_N64_steel,
+        'N65':shape_N65_steel,
+        'N6':shape_N6_steel,
+        'N6-1':shape_N6_steel,
+        'N6-2':shape_N6_steel,
+        'N12':shape_N6_steel,
+        'N16':shape_N16_steel,
+        'N16-1':shape_N16_steel,
+        'N17':shape_N16_steel,
+        'N17-1':shape_N16_steel,
+        'N18':shape_N16_steel,
+        'N12-1':shape_N12_1_steel
+    }
+
+    def get_shape_from_profile():
+        return
         
