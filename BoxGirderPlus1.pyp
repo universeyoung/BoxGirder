@@ -179,6 +179,24 @@
       <Value>750</Value>
       <ValueType>Length</ValueType>
     </Parameter>
+    <Parameter>
+      <Name>Separator</Name>
+      <ValueType>Separator</ValueType>
+    </Parameter>
+    <Parameter>
+      <Name>bottomholehalflength</Name>
+      <Text>bottomholehalflength</Text>
+		<TextId>1132</TextId>
+      <Value>750</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
+    <Parameter>
+      <Name>bottomholeradius</Name>
+      <Text>bottomholeradius</Text>
+		  <TextId>1133</TextId>
+      <Value>250</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
   </Page>
   <Page>
     <Name>Page2</Name>
