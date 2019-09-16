@@ -101,7 +101,14 @@
 		<TextId>1131</TextId>
 		<Text>上方倒角半径</Text>
 	</Item>
-	
+	<Item>
+		<TextId>1132</TextId>
+		<Text>地板槽半长</Text>
+	</Item>
+	<Item>
+		<TextId>1133</TextId>
+		<Text>地板槽半径</Text>
+	</Item>
 	
 	<Item>
 		<TextId>1200</TextId>
