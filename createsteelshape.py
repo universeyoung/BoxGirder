@@ -231,16 +231,14 @@ class Createsteelshape(object):
         profile+=AllplanGeo.Point3D(0,-base-diameter/2,0)
         return profile,hooklength,135,135
 
-
-
-    def shape_N21_steel(length=7208,diameter=12):
+    def shape_N21_steel(length=32530,diameter=12):
         '''
         N21 N21-1 N22 N23 N24 N25 N26
         '''
         profile = AllplanGeo.Polyline3D()
-        profile+=AllplanGeo.Point3D(0,base/2+diameter/2,0)
-        profile+=AllplanGeo.Point3D(0,-base/2-diameter/2,0)
-        return profile,hooklength,-135,-135
+        profile+=AllplanGeo.Point3D(0,-length/2,0)
+        profile+=AllplanGeo.Point3D(0,length/2,0)
+        return profile,-1,0,0
 
 
     def shape_N27_steel(base=1465,x=3300,y=341,z=3318,length=4973,diameter=12):
@@ -456,7 +454,33 @@ class Createsteelshape(object):
         profile+=AllplanGeo.Point3D(0,-xlength,0)
         profile+=AllplanGeo.Point3D(0,hooklength,0)
         return profile,hooklength
-        
+
+
+    def shape_N9_steel(a=72,bottom=714,up=922,top=986,c=2996,d=2906,e=727,c1=2088,d1=2025,e1=506,f=200,r=54,length=8114,diameter=20):
+        '''
+        N9
+        '''
+        hooklength=(length-a-bottom-up-top-c-c1)/2
+        angle=math.atan(d/e)
+        r=a/angle
+        newangle=angle/2
+        s=r*math.tan(newangle)  #求切线长
+        bottom+=s
+        c+=s
+        d,e=c/math.sqrt(d*d+e*e)*d,c/math.sqrt(d*d+e*e)*e
+        c1+=hooklength
+        d1,e1=c1/math.sqrt(d1*d1+e1*e1)*d1,c1/math.sqrt(d1*d1+e1*e1)*e1
+        top+=hooklength
+        profile = AllplanGeo.Polyline3D()
+        profile+=AllplanGeo.Point3D(0,e1,d1+up)
+        profile+=AllplanGeo.Point3D(0,0,up)
+        profile+=AllplanGeo.Point3D()
+        profile+=AllplanGeo.Point3D(0,bottom,0)
+        profile+=AllplanGeo.Point3D(0,bottom+e,d)
+        profile+=AllplanGeo.Point3D(0,bottom+e-top,d)
+        return profile,-1,0,0
+
+
     shape_dic={
         'N1':shape_N1_steel,
         'N5':shape_N1_steel,
@@ -560,7 +584,8 @@ class Createsteelshape(object):
         'N17':shape_N16_steel,
         'N17-1':shape_N16_steel,
         'N18':shape_N16_steel,
-        'N12-1':shape_N12_1_steel
+        'N12-1':shape_N12_1_steel,
+        'N9':shape_N9_steel
     }
 
     def get_shape_from_profile():
