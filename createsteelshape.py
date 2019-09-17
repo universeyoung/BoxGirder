@@ -113,10 +113,9 @@ class Createsteelshape(object):
         N10-1 N9-1 N10 N34-1 N44-3 
         N66-2 N14 N14-1 N14-2 N15 
         N19 N20 N35 N34-3 N31
-        N66-3 N21-2 N21-3 N21-4 N21-7
-        N22-1 N32 N34 N34-2 N39
-        N41 N42 N43 N44 N44-1
-        N66-4
+        N66-3 N21-2 N21-3 N21-7
+        N32 N34 N34-2 N39 N41
+        N42 N43 N44 N44-1 N66-4
         '''
         profile = AllplanGeo.Polyline3D()
         profile+=AllplanGeo.Point3D(0,base/2+diameter/2,0)
@@ -127,7 +126,7 @@ class Createsteelshape(object):
 
     def shape_N2_1_steel(base=1525,down=400,length=2273,diameter=22):
         '''
-        N2-1 N21-4
+        N2-1 N21-4 N22-1
         '''
         profile = AllplanGeo.Polyline3D()
         profile+=AllplanGeo.Point3D(0,base+diameter/2,0)
@@ -520,9 +519,8 @@ class Createsteelshape(object):
         'N66-3':shape_N2_steel,
         'N21-2':shape_N2_steel,
         'N21-3':shape_N2_steel,
-        'N21-4':shape_N2_steel,
         'N21-7':shape_N2_steel,
-        'N22-1':shape_N2_steel,
+        'N22-1':shape_N2_1_steel,
         'N32':shape_N2_steel,
         'N34':shape_N2_steel,
         'N34-2':shape_N2_steel,
