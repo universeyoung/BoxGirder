@@ -447,11 +447,13 @@ class Createsteelshape(object):
         '''
         hooklength=(length-xlength*2-width*2)/2
         profile = AllplanGeo.Polyline3D()
-        profile+=AllplanGeo.Point3D(0,0,hooklength)
+        profile+=AllplanGeo.Point3D(0,-hooklength,0)
+        profile+=AllplanGeo.Point3D()
         profile+=AllplanGeo.Point3D(0,0,-width)
         profile+=AllplanGeo.Point3D(0,-xlength,-width)
         profile+=AllplanGeo.Point3D(0,-xlength,0)
-        profile+=AllplanGeo.Point3D(0,hooklength,0)
+        profile+=AllplanGeo.Point3D()
+        profile+=AllplanGeo.Point3D(0,0,-hooklength)
         return profile,hooklength
 
 
