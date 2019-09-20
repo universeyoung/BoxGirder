@@ -179,6 +179,24 @@
       <Value>750</Value>
       <ValueType>Length</ValueType>
     </Parameter>
+    <Parameter>
+      <Name>Separator</Name>
+      <ValueType>Separator</ValueType>
+    </Parameter>
+    <Parameter>
+      <Name>bottomholehalflength</Name>
+      <Text>bottomholehalflength</Text>
+		<TextId>1132</TextId>
+      <Value>750</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
+    <Parameter>
+      <Name>bottomholeradius</Name>
+      <Text>bottomholeradius</Text>
+		  <TextId>1133</TextId>
+      <Value>250</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
   </Page>
   <Page>
     <Name>Page2</Name>
@@ -2031,7 +2049,7 @@
       <Name>waterholeline</Name>
       <Text>waterholeline</Text>
       <TextId>1601</TextId>
-      <Value>2</Value>
+      <Value>3</Value>
       <ValueList>2|3|</ValueList>
       <ValueType>IntegerComboBox</ValueType>
     </Parameter>
@@ -2053,16 +2071,16 @@
         <Name>waterholenum</Name>
         <Text>waterholenum</Text>
         <TextId>1604</TextId>
-        <Value>3</Value>
+        <Value>4</Value>
         <ValueType>Integer</ValueType>
       </Parameter>
-      <Parameter>
+<!--      <Parameter>
         <Name>wahdis</Name>
         <Text>wahdis</Text>
         <TextId>1609</TextId>
         <Value>6000</Value>
         <ValueType>Length</ValueType>
-      </Parameter>
+      </Parameter> 
       <Parameter>
           <Name>waterholeaway</Name>
           <Text>waterholeaway</Text>
@@ -2084,13 +2102,13 @@
             <Value>0</Value>
             <ValueType>RadioButton</ValueType>
           </Parameter>
-        </Parameter>
+        </Parameter>-->
       <Parameter>
         <Name>waxdis</Name>
         <Text>waxdis</Text>
         <TextId>1608</TextId>
-        <Value>6300</Value>
-        <ValueType>Length</ValueType>
+        <Value>6300 6730 6540 6730</Value>
+        <ValueType>String</ValueType>
       </Parameter>
       <Parameter>
         <Name>Separator00</Name>
@@ -2141,16 +2159,16 @@
         <Name>waterholemnum</Name>
         <Text>waterholemnum</Text>
         <TextId>1604</TextId>
-        <Value>3</Value>
+        <Value>4</Value>
         <ValueType>Integer</ValueType>
       </Parameter>
-      <Parameter>
+<!--      <Parameter>
         <Name>wahmdis</Name>
         <Text>wahmdis</Text>
         <TextId>1609</TextId>
         <Value>7700</Value>
         <ValueType>Length</ValueType>
-      </Parameter>
+      </Parameter>  
       <Parameter>
           <Name>waterholemaway</Name>
           <Text>waterholemaway</Text>
@@ -2172,13 +2190,13 @@
             <Value>0</Value>
             <ValueType>RadioButton</ValueType>
           </Parameter>
-        </Parameter>
+        </Parameter> -->
       <Parameter>
         <Name>wamxdis</Name>
         <Text>wamxdis</Text>
         <TextId>1608</TextId>
-        <Value>4600</Value>
-        <ValueType>Length</ValueType>
+        <Value>4600 6700 10000 6700</Value>
+        <ValueType>String</ValueType>
       </Parameter>
       <Parameter>
         <Name>Separator00</Name>
@@ -2245,16 +2263,16 @@
         <Name>windholenum</Name>
         <Text>windholenum</Text>
         <TextId>1704</TextId>
-        <Value>10</Value>
+        <Value>14</Value>
         <ValueType>Integer</ValueType>
       </Parameter>
-      <Parameter>
+<!--      <Parameter>
         <Name>wihdis</Name>
         <Text>wihdis</Text>
         <TextId>1709</TextId>
         <Value>2000</Value>
         <ValueType>Length</ValueType>
-      </Parameter>
+      </Parameter>  
       <Parameter>
         <Name>windholeaway</Name>
         <Text>windholeaway</Text>
@@ -2276,13 +2294,13 @@
           <Value>0</Value>
           <ValueType>RadioButton</ValueType>
         </Parameter>
-      </Parameter>
+      </Parameter> -->
       <Parameter>
         <Name>wixdis</Name>
         <Text>wixdis</Text>
         <TextId>1708</TextId>
-        <Value>3300</Value>
-        <ValueType>Length</ValueType>
+        <Value>2500 3000 1800 2000 2000 2000 2000 2000 2000 2000 2000 2000 1800 3000</Value>
+        <ValueType>String</ValueType>
       </Parameter>
       <Parameter>
         <Name>Separator00</Name>
@@ -2333,16 +2351,16 @@
         <Name>windholemnum</Name>
         <Text>windholemnum</Text>
         <TextId>1704</TextId>
-        <Value>10</Value>
+        <Value>14</Value>
         <ValueType>Integer</ValueType>
       </Parameter>
-      <Parameter>
+<!--      <Parameter>
         <Name>wihmdis</Name>
         <Text>wihmdis</Text>
         <TextId>1709</TextId>
         <Value>2000</Value>
         <ValueType>Length</ValueType>
-      </Parameter>
+      </Parameter> 
       <Parameter>
         <Name>windholemaway</Name>
         <Text>windholemaway</Text>
@@ -2364,13 +2382,13 @@
           <Value>0</Value>
           <ValueType>RadioButton</ValueType>
         </Parameter>
-      </Parameter>
+      </Parameter>-->
       <Parameter>
         <Name>wimxdis</Name>
         <Text>wimxdis</Text>
         <TextId>1708</TextId>
-        <Value>3300</Value>
-        <ValueType>Length</ValueType>
+        <Value>2500 3000 1800 2000 2000 2000 2000 2000 2000 2000 2000 2000 1800 3000</Value>
+        <ValueType>String</ValueType>
       </Parameter>
       <Parameter>
         <Name>Separator00</Name>
@@ -2430,6 +2448,17 @@
             <Text>Reinforcement steel grade</Text>
 
             <Value>5</Value>
+
+            <ValueType>ReinfSteelGrade</ValueType>
+
+    </Parameter>
+	<Parameter>
+
+            <Name>CirSteelGrade</Name>
+
+            <Text>Reinforcement steel grade</Text>
+
+            <Value>4</Value>
 
             <ValueType>ReinfSteelGrade</ValueType>
 

@@ -336,7 +336,7 @@
   </Item>
   <Item>
     <TextId>1602</TextId>
-    <Text>泄水孔直径</Text>
+    <Text>泄水孔半径</Text>
   </Item>
   <Item>
     <TextId>1603</TextId>
@@ -360,7 +360,7 @@
   </Item>
   <Item>
     <TextId>1608</TextId>
-    <Text>横向距离</Text>
+    <Text>横向间距列表</Text>
   </Item>
   <Item>
     <TextId>1609</TextId>
@@ -398,7 +398,7 @@
   </Item>
   <Item>
     <TextId>1702</TextId>
-    <Text>通风孔直径</Text>
+    <Text>通风孔半径</Text>
   </Item>
   <Item>
     <TextId>1703</TextId>
@@ -422,7 +422,7 @@
   </Item>
   <Item>
     <TextId>1708</TextId>
-    <Text>横向距离</Text>
+    <Text>横向间距列表</Text>
   </Item>
   <Item>
     <TextId>1709</TextId>
