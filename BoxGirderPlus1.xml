@@ -95,7 +95,11 @@
 	</Item>
 	<Item>
 		<TextId>1130</TextId>
-		<Text>下方倒角半径</Text>
+		<Text>截面0下方倒角半径</Text>
+	</Item>
+	<Item>
+		<TextId>1177</TextId>
+		<Text>截面2下方倒角半径</Text>
 	</Item>
 	<Item>
 		<TextId>1131</TextId>
@@ -103,11 +107,38 @@
 	</Item>
 	<Item>
 		<TextId>1132</TextId>
-		<Text>地板槽半长</Text>
+		<Text>底板槽半长</Text>
 	</Item>
 	<Item>
 		<TextId>1133</TextId>
-		<Text>地板槽半径</Text>
+		<Text>底板槽半径</Text>
+	</Item>
+	
+	
+	<Item>
+		<TextId>1134</TextId>
+		<Text>梁端挡水台</Text>
+	</Item>
+	<Item>
+		<TextId>1135</TextId>
+		<Text>露出梁端距离</Text>
+	</Item>
+	<Item>
+		<TextId>1136</TextId>
+		<Text>伸进梁端距离</Text>
+	</Item>
+	<Item>
+		<TextId>1137</TextId>
+		<Text>半长</Text>
+	</Item>
+	<Item>
+		<TextId>1138</TextId>
+		<Text>相对梁体中心延伸高度</Text>
+	</Item>
+	
+	<Item>
+		<TextId>1139</TextId>
+		<Text>梁底端小倒角</Text>
 	</Item>
 	
 	<Item>
@@ -336,7 +367,7 @@
   </Item>
   <Item>
     <TextId>1602</TextId>
-    <Text>泄水孔半径</Text>
+    <Text>泄水孔直径</Text>
   </Item>
   <Item>
     <TextId>1603</TextId>
@@ -387,7 +418,20 @@
     <Text>中排泄水孔</Text>
   </Item> 
   
+  <Item>
+    <TextId>1651</TextId>
+    <Text>底板泄水孔</Text>
+  </Item> 
   
+  <Item>
+    <TextId>1652</TextId>
+    <Text>泄水孔直径</Text>
+  </Item>
+  
+  <Item>
+    <TextId>1672</TextId>
+    <Text>泄水孔直径列表</Text>
+  </Item>
   <Item>
     <TextId>1700</TextId>
     <Text>通风孔</Text>
@@ -398,7 +442,7 @@
   </Item>
   <Item>
     <TextId>1702</TextId>
-    <Text>通风孔半径</Text>
+    <Text>通风孔直径</Text>
   </Item>
   <Item>
     <TextId>1703</TextId>
