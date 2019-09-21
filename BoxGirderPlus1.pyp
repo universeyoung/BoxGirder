@@ -172,6 +172,13 @@
       <Value>100</Value>
       <ValueType>Length</ValueType>
     </Parameter>
+	<Parameter>
+      <Name>cr11</Name>
+      <Text>cr11</Text>
+		  <TextId>1177</TextId>
+      <Value>300</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
     <Parameter>
       <Name>cr20</Name>
       <Text>cr20</Text>
@@ -197,6 +204,49 @@
       <Value>250</Value>
       <ValueType>Length</ValueType>
     </Parameter>
+	<Parameter>
+      <Name>expander20</Name>
+      <Text>expander20</Text>
+      <TextId>1134</TextId>
+      <Value>True</Value>
+      <ValueType>Expander</ValueType>
+		
+    <Parameter>
+      <Name>antiwx1</Name>
+      <Text>antiwx1</Text>
+		  <TextId>1135</TextId>
+      <Value>20</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
+    <Parameter>
+      <Name>antiwx2</Name>
+      <Text>antiwx2</Text>
+		  <TextId>1136</TextId>
+      <Value>180</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
+    <Parameter>
+      <Name>antiwhalflength</Name>
+      <Text>antiwhalflength</Text>
+		  <TextId>1137</TextId>
+      <Value>5900</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
+    <Parameter>
+      <Name>antiwheight</Name>
+      <Text>antiwheight</Text>
+		  <TextId>1138</TextId>
+      <Value>75</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
+	</Parameter>
+    <Parameter>
+      <Name>botori</Name>
+      <Text>botori</Text>
+		  <TextId>1139</TextId>
+      <Value>20</Value>
+      <ValueType>Length</ValueType>
+    </Parameter>
   </Page>
   <Page>
     <Name>Page2</Name>
@@ -206,7 +256,7 @@
       <Name>secnum</Name>
       <Text>secnum</Text>
 		  <TextId>1501</TextId>
-      <Value>5</Value>
+      <Value>6</Value>
       <ValueList>2|3|4|5|6|7|8|9|10|</ValueList>
       <ValueType>IntegerComboBox</ValueType>
     </Parameter>
@@ -237,7 +287,7 @@
       <Name>dis04</Name>
       <Text>dis04</Text>
 		  <TextId>1505</TextId>
-      <Value>16300</Value>
+      <Value>4500</Value>
       <Visible>secnum>4</Visible>
       <ValueType>Length</ValueType>
     </Parameter>
@@ -245,7 +295,7 @@
       <Name>dis05</Name>
       <Text>dis05</Text>
 		  <TextId>1506</TextId>
-      <Value>13401</Value>
+      <Value>16300</Value>
       <Visible>secnum>5</Visible>
       <ValueType>Length</ValueType>
     </Parameter>
@@ -253,7 +303,7 @@
       <Name>dis06</Name>
       <Text>dis06</Text>
 		  <TextId>1507</TextId>
-      <Value>16401</Value>
+      <Value>17000</Value>
       <Visible>secnum>6</Visible>
       <ValueType>Length</ValueType>
     </Parameter>
@@ -320,7 +370,7 @@
       <Name>sa45</Name>
       <Text>sa45</Text>
 		  <TextId>1554</TextId>
-      <Value>False</Value>
+      <Value>True</Value>
       <Visible>secnum>5</Visible>
       <ValueType>CheckBox</ValueType>
     </Parameter>
@@ -2124,14 +2174,14 @@
           <ValueType>RadioButtonGroup</ValueType>
 
           <Parameter>
-            <Name>RadioButton03</Name>
+            <Name>RadioButton33</Name>
             <Text>toedge</Text>
             <TextId>1621</TextId>
             <Value>1</Value>
             <ValueType>RadioButton</ValueType>
           </Parameter>
           <Parameter>
-            <Name>RadioButton04</Name>
+            <Name>RadioButton34</Name>
             <Text>tomid</Text>
             <TextId>1622</TextId>
             <Value>0</Value>
@@ -2210,14 +2260,14 @@
           <ValueType>RadioButtonGroup</ValueType>
 
           <Parameter>
-            <Name>RadioButton3</Name>
+            <Name>RadioButton13</Name>
             <Text>toedge</Text>
             <TextId>1621</TextId>
             <Value>1</Value>
             <ValueType>RadioButton</ValueType>
           </Parameter>
           <Parameter>
-            <Name>RadioButton4</Name>
+            <Name>RadioButton14</Name>
             <Text>tomid</Text>
             <TextId>1622</TextId>
             <Value>0</Value>
@@ -2227,6 +2277,207 @@
       <Parameter>
         <Name>wamydis</Name>
         <Text>wamydis</Text>
+        <TextId>1623</TextId>
+        <Value>6300</Value>
+        <ValueType>Length</ValueType>
+      </Parameter>
+    </Parameter>
+	
+	
+	
+	<Parameter>
+      <Name>botmidwaterhole</Name>
+      <Text>botmidwaterhole</Text>
+      <TextId>1651</TextId>
+      <Value>True</Value>
+      <ValueType>Expander</ValueType>
+      <Parameter>
+        <Name>Separator00</Name>
+        <ValueType>Separator</ValueType>
+      </Parameter>
+    </Parameter>
+    <Parameter>
+      <Name>bwaterholeline</Name>
+      <Text>bwaterholeline</Text>
+      <TextId>1601</TextId>
+      <Value>2</Value>
+      <ValueList>2|3|</ValueList>
+      <ValueType>IntegerComboBox</ValueType>
+    </Parameter>
+    <Parameter>
+      <Name>bsidewaterhole</Name>
+      <Text>bsidewaterhole</Text>
+      <TextId>1603</TextId>
+      <Value>True</Value>
+      <ValueType>Expander</ValueType>
+
+      <Parameter>
+        <Name>bwaterholenum</Name>
+        <Text>bwaterholenum</Text>
+        <TextId>1604</TextId>
+        <Value>8</Value>
+        <ValueType>Integer</ValueType>
+      </Parameter>
+<!--      <Parameter>
+        <Name>wahdis</Name>
+        <Text>wahdis</Text>
+        <TextId>1609</TextId>
+        <Value>6000</Value>
+        <ValueType>Length</ValueType>
+      </Parameter> 
+      <Parameter>
+          <Name>waterholeaway</Name>
+          <Text>waterholeaway</Text>
+          <TextId>1605</TextId>
+          <Value>1</Value>
+          <ValueType>RadioButtonGroup</ValueType>
+
+          <Parameter>
+            <Name>RadioButton01</Name>
+            <Text>toedge</Text>
+            <TextId>1606</TextId>
+            <Value>1</Value>
+            <ValueType>RadioButton</ValueType>
+          </Parameter>
+          <Parameter>
+            <Name>RadioButton02</Name>
+            <Text>tomid</Text>
+            <TextId>1607</TextId>
+            <Value>0</Value>
+            <ValueType>RadioButton</ValueType>
+          </Parameter>
+        </Parameter>-->
+      <Parameter>
+        <Name>bwaxdis</Name>
+        <Text>bwaxdis</Text>
+        <TextId>1608</TextId>
+        <Value>4600 2700 4000 4000 2000 4000 4000 2700</Value>
+        <ValueType>String</ValueType>
+      </Parameter>
+    <Parameter>
+      <Name>bwaterholediameter</Name>
+      <Text>bwaterholediameter</Text>
+      <TextId>1672</TextId>
+      <Value>145 90 145 90 90 145 90 145</Value>
+      <ValueType>String</ValueType>
+    </Parameter>
+      <Parameter>
+        <Name>Separator00</Name>
+        <ValueType>Separator</ValueType>
+      </Parameter>
+
+
+      <Parameter>
+          <Name>bwaterholeawayy</Name>
+          <Text>bwaterholeawayy</Text>
+          <TextId>1620</TextId>
+          <Value>0</Value>
+          <ValueType>RadioButtonGroup</ValueType>
+
+          <Parameter>
+            <Name>RadioButton003</Name>
+            <Text>btoedge</Text>
+            <TextId>1621</TextId>
+            <Value>1</Value>
+            <ValueType>RadioButton</ValueType>
+          </Parameter>
+          <Parameter>
+            <Name>RadioButton004</Name>
+            <Text>btomid</Text>
+            <TextId>1622</TextId>
+            <Value>0</Value>
+            <ValueType>RadioButton</ValueType>
+          </Parameter>
+        </Parameter>
+      <Parameter>
+        <Name>bwaydis</Name>
+        <Text>bwaydis</Text>
+        <TextId>1623</TextId>
+        <Value>700</Value>
+        <ValueType>Length</ValueType>
+      </Parameter>
+    </Parameter>
+
+    <Parameter>
+      <Name>bmidwaterhole</Name>
+      <Text>bmidwaterhole</Text>
+      <TextId>1630</TextId>
+      <Value>True</Value>
+      <Visible>bwaterholeline>2</Visible>
+      <ValueType>Expander</ValueType>
+
+      <Parameter>
+        <Name>bwaterholemnum</Name>
+        <Text>bwaterholemnum</Text>
+        <TextId>1604</TextId>
+        <Value>4</Value>
+        <ValueType>Integer</ValueType>
+      </Parameter>
+<!--      <Parameter>
+        <Name>wahmdis</Name>
+        <Text>wahmdis</Text>
+        <TextId>1609</TextId>
+        <Value>7700</Value>
+        <ValueType>Length</ValueType>
+      </Parameter>  
+      <Parameter>
+          <Name>waterholemaway</Name>
+          <Text>waterholemaway</Text>
+          <TextId>1605</TextId>
+          <Value>1</Value>
+          <ValueType>RadioButtonGroup</ValueType>
+
+          <Parameter>
+            <Name>RadioButton1</Name>
+            <Text>toedge</Text>
+            <TextId>1606</TextId>
+            <Value>1</Value>
+            <ValueType>RadioButton</ValueType>
+          </Parameter>
+          <Parameter>
+            <Name>RadioButton2</Name>
+            <Text>tomid</Text>
+            <TextId>1607</TextId>
+            <Value>0</Value>
+            <ValueType>RadioButton</ValueType>
+          </Parameter>
+        </Parameter> -->
+      <Parameter>
+        <Name>bwamxdis</Name>
+        <Text>bwamxdis</Text>
+        <TextId>1608</TextId>
+        <Value>4600 6700 10000 6700</Value>
+        <ValueType>String</ValueType>
+      </Parameter>
+      <Parameter>
+        <Name>Separator00</Name>
+        <ValueType>Separator</ValueType>
+      </Parameter>
+      <Parameter>
+          <Name>bwaterholemawayy</Name>
+          <Text>bwaterholemawayy</Text>
+          <TextId>1620</TextId>
+          <Value>1</Value>
+          <ValueType>RadioButtonGroup</ValueType>
+
+          <Parameter>
+            <Name>RadioButton53</Name>
+            <Text>btoedge</Text>
+            <TextId>1621</TextId>
+            <Value>1</Value>
+            <ValueType>RadioButton</ValueType>
+          </Parameter>
+          <Parameter>
+            <Name>RadioButton54</Name>
+            <Text>btomid</Text>
+            <TextId>1622</TextId>
+            <Value>0</Value>
+            <ValueType>RadioButton</ValueType>
+          </Parameter>
+        </Parameter>
+      <Parameter>
+        <Name>bwamydis</Name>
+        <Text>bwamydis</Text>
         <TextId>1623</TextId>
         <Value>6300</Value>
         <ValueType>Length</ValueType>

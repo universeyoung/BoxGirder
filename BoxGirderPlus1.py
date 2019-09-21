@@ -211,8 +211,12 @@ class BoxGirderPlus1():
         height=self.q10+self.q20+self.q30+self.q40+self.b0-self.a10*self.p10-self.a20*self.p20-self.a30*self.p30-self.a40*self.p40
         self.height=height
         halfwidth=self.a10+self.a20+self.a30+self.a40
-        #外截面
-        outersection,outermain,outerscale=self.create_common_outer_section_path()
+        #外截面0
+        outersection,outermain,outerscale,ptl=self.create_common_outer_section_path(self.cr10)
+        #外截面1
+        outersection1,outermain1,outerscale1,ptl1=self.create_common_outer_section_path(self.cr10,self.dis01)
+        #外截面2
+        outersection2,outermain2,outerscale2,ptl2=self.create_common_outer_section_path(self.cr11,self.dis02)
         #内截面参数
         id1list=[self.id01,self.id11,self.id21,self.id31,self.id41,self.id51,self.id61,self.id71,self.id81,self.id91]
         id2list=[self.id02,self.id12,self.id22,self.id32,self.id42,self.id52,self.id62,self.id72,self.id82,self.id92]
@@ -315,8 +319,24 @@ class BoxGirderPlus1():
             pathlistlist.append(pathlist)
             inners.append(innersection)
         #生成外截面实体
-        outrail=AllplanGeo.Line3D(0,0,0,secdislist[self.secnum-1],0,0)
-        errout,outshp=AllplanGeo.CreateSweptBRep3D([outersection],outrail,True,False,None,0)
+        outrail=AllplanGeo.Line3D(0,0,0,secdislist[1],0,0)
+        errout,outshp0=AllplanGeo.CreateSweptBRep3D([outersection],outrail,True,False,None,0)
+        botpathlis=[]
+        botpathlis+=self.create_path_by_point_list(self.patht,ptl1,ptl2)
+        #路径去重
+        botpathlist=self.list_modify(botpathlis)
+        #另一半路径
+        botpathli=botpathlist[1:-1]
+        botpathli.reverse()
+        #路径叠加
+        for j in range(0,len(botpathli)):
+            botpathre=AllplanGeo.Transform(botpathli[j],matxz)
+            botpathlist.append(botpathre)
+        err,outshp1= AllplanGeo.CreateRailSweptBRep3D([outersection1,outersection2],botpathlist,True,False,False)
+        outrail2=AllplanGeo.Line3D(secdislist[2],0,0,secdislist[self.secnum-1],0,0)
+        errout,outshp2=AllplanGeo.CreateSweptBRep3D([outersection2],outrail2,True,False,None,0)
+        err,outshp=AllplanGeo.MakeUnion(outshp0,outshp1)
+        err,outshp=AllplanGeo.MakeUnion(outshp,outshp2)
         #内截面实体合并
         errunionin=[]
         inshp=inners[0]
@@ -326,10 +346,22 @@ class BoxGirderPlus1():
             errunionin.append(err)
         #求减生成半实体
         errsub,halfGirderPlus=AllplanGeo.MakeSubtraction(outshp,inshp)
+        #梁底端小倒角
+        botori=AllplanGeo.Path3D()
+        botarc=AllplanGeo.Arc3D(AllplanGeo.Point3D(self.botori,-halfwidth,self.botori),AllplanGeo.Vector3D(-1,0,0),AllplanGeo.Vector3D(0,1,0),self.botori,self.botori,0,3*math.pi/2,False)
+        botori+=AllplanGeo.Line3D(AllplanGeo.Point3D(0,-halfwidth,0),botarc.StartPoint)
+        botori+=botarc
+        botori+=AllplanGeo.Line3D(botarc.EndPoint,AllplanGeo.Point3D(0,-halfwidth,0))
+        errout,botorimo=AllplanGeo.CreateSweptBRep3D([botori],AllplanGeo.Line3D(AllplanGeo.Point3D(0,-halfwidth,0),AllplanGeo.Point3D(0,halfwidth,0)),True,False,None,0)
+        errsub,halfGirderPlus=AllplanGeo.MakeSubtraction(halfGirderPlus,botorimo)
         #挖槽
         err,ring=self.create_ring_runway(self.bottomholehalflength,self.bottomholeradius,self.id02)
         if not err:
             errsubc,halfGirderPlus=AllplanGeo.MakeSubtraction(halfGirderPlus,ring)
+        #梁端挡水台
+        axis=AllplanGeo.AxisPlacement3D(AllplanGeo.Point3D(-self.antiwx1,-self.antiwhalflength,height),AllplanGeo.Vector3D(1,0,0),AllplanGeo.Vector3D(0,0,1))
+        edgeantiwater=AllplanGeo.BRep3D.CreateCuboid(axis, self.antiwx1+self.antiwx2, self.antiwhalflength*2, self.antiwheight)
+        errcomb,halfGirderPlus=AllplanGeo.MakeUnion(halfGirderPlus,edgeantiwater)
         #镜像生成另一半实体
         matgir=AllplanGeo.Matrix3D()
         matgir.Reflection(AllplanGeo.Plane3D(AllplanGeo.Point3D(secdislist[self.secnum-1], 0, 0),AllplanGeo.Point3D(secdislist[self.secnum-1], 0, 1),AllplanGeo.Point3D(secdislist[self.secnum-1], 1, 0)))
@@ -348,7 +380,7 @@ class BoxGirderPlus1():
         for i in range(0,self.waterholenum):
             swhx+=sidewaterholedistancelist[i]
             axis=AllplanGeo.AxisPlacement3D(AllplanGeo.Point3D(swhx,swhy,0),AllplanGeo.Vector3D(1,0,0),AllplanGeo.Vector3D(0,0,1))
-            swh=AllplanGeo.BRep3D.CreateCylinder(axis,self.waterholediameter,height)
+            swh=AllplanGeo.BRep3D.CreateCylinder(axis,self.waterholediameter/2,height)
             self.wateraxislist.append(axis)
             self.wateraxislist+=self.wateraxislist
             rswh=AllplanGeo.Transform(swh,matxz)
@@ -364,12 +396,46 @@ class BoxGirderPlus1():
             for i in range(0,self.waterholemnum):
                 mwhx+=middlewaterholedistancelist[i]
                 axis=AllplanGeo.AxisPlacement3D(AllplanGeo.Point3D(mwhx,mwhy,height/2),AllplanGeo.Vector3D(1,0,0),AllplanGeo.Vector3D(0,0,1))
-                mwh=AllplanGeo.BRep3D.CreateCylinder(axis,self.waterholediameter,height/2)
+                mwh=AllplanGeo.BRep3D.CreateCylinder(axis,self.waterholediameter/2,height/2)
                 swhcy.append(mwh)
+                self.wateraxislist.append(axis)
+        #底板泄水孔
+        
+        bswhcy=[]
+        bottomsidewaterholedistancelist=self.string_to_list(self.bwaxdis)
+        if self.bwaterholeawayy==0:
+            bswhy=self.bwaydis
+        else:
+            bswhy=halfwidth-self.bwaydis
+        bswhx=0
+        self.bwateraxislist=[]
+        for i in range(0,self.bwaterholenum):
+            bswhx+=bottomsidewaterholedistancelist[i]
+            axis=AllplanGeo.AxisPlacement3D(AllplanGeo.Point3D(bswhx,bswhy,0),AllplanGeo.Vector3D(1,0,0),AllplanGeo.Vector3D(0,0,1))
+            bswh=AllplanGeo.BRep3D.CreateCylinder(axis,self.waterholediameter/2,height/2)
+            self.wateraxislist.append(axis)
+            self.wateraxislist+=self.wateraxislist
+            brswh=AllplanGeo.Transform(bswh,matxz)
+            bswhcy.append(bswh)
+            bswhcy.append(brswh)
+        if self.bwaterholeline>2:
+            bmiddlewaterholedistancelist=self.string_to_list(self.wamxdis)
+            bmwhx=0
+            if self.bwaterholemawayy==0:
+                bmwhy=self.bwamydis
+            else:
+                bmwhy=halfwidth-self.bwamydis
+            for i in range(0,self.bwaterholemnum):
+                bmwhx+=bmiddlewaterholedistancelist[i]
+                axis=AllplanGeo.AxisPlacement3D(AllplanGeo.Point3D(bmwhx,bmwhy,0),AllplanGeo.Vector3D(1,0,0),AllplanGeo.Vector3D(0,0,1))
+                bmwh=AllplanGeo.BRep3D.CreateCylinder(axis,self.bwaterholediameter[i]/2,height/2)
+                bswhcy.append(bmwh)
                 self.wateraxislist.append(axis)
         #挖孔
         for i in range(0,len(swhcy)):
             errsub,GirderPlus=AllplanGeo.MakeSubtraction(GirderPlus,swhcy[i])
+        for i in range(0,len(bswhcy)):
+            errsub,GirderPlus=AllplanGeo.MakeSubtraction(GirderPlus,bswhcy[i])
         #通风孔
         swihcy=[]
         sidewaterholedistancelist=self.string_to_list(self.wixdis)
@@ -382,7 +448,7 @@ class BoxGirderPlus1():
         for i in range(0,self.windholenum):
             swihx+=sidewaterholedistancelist[i]
             axis=AllplanGeo.AxisPlacement3D(AllplanGeo.Point3D(swihx,-halfwidth,swihz),AllplanGeo.Vector3D(1,0,0),AllplanGeo.Vector3D(0,1,0))
-            swih=AllplanGeo.BRep3D.CreateCylinder(axis,self.windholediameter,2*halfwidth)
+            swih=AllplanGeo.BRep3D.CreateCylinder(axis,self.windholediameter/2,2*halfwidth)
             swihcy.append(swih)
             self.windaxislist.append(axis)
         if self.windholeline>1:
@@ -396,7 +462,7 @@ class BoxGirderPlus1():
             for i in range(0,self.windholemnum):
                 swihx+=sidewaterholedistancelist[i]
                 axis=AllplanGeo.AxisPlacement3D(AllplanGeo.Point3D(swihx,-halfwidth,mwihz),AllplanGeo.Vector3D(1,0,0),AllplanGeo.Vector3D(0,1,0))
-                mwih=AllplanGeo.BRep3D.CreateCylinder(axis,self.windholediameter,2*halfwidth)
+                mwih=AllplanGeo.BRep3D.CreateCylinder(axis,self.windholediameter/2,2*halfwidth)
                 swihcy.append(mwih)
                 self.windaxislist.append(axis)
         #挖孔
@@ -480,6 +546,8 @@ class BoxGirderPlus1():
         #是否显示区域块
         
         model_ele_list=[]
+        model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,botarc))
+        '''
         model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.topmidlist))
         model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.bartopmidlist))
         model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.bottommidlist))
@@ -488,6 +556,7 @@ class BoxGirderPlus1():
         model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.n33barline))
         model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.barn10))
         model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,self.barn15))
+        '''
         if not errcomb and GirderPlus.IsValid:
             model_ele_list.append(AllplanBasisElements.ModelElement3D(com_prop,GirderPlus))
         if self.blockvis:
@@ -587,7 +656,7 @@ class BoxGirderPlus1():
         mainline=[ln0,ln1,ln2,ln3,ln4,ln5,ln6,ln7,ln8]
         return (path,lpath,mainline)
 
-    def create_common_outer_section_path(self):
+    def create_common_outer_section_path(self,cr10,d=0):
         """
         a1,p1:第一段横向长度及坡度，坡度向上为正
         a2,p2:第二段横向长度及坡度，坡度向上为正
@@ -599,6 +668,8 @@ class BoxGirderPlus1():
         c2,q2:第二段横向长度及纵向长度，纵向长度向上为正
         c3,q3:第三段横向长度及纵向长度，纵向长度向上为正
         c4,q4:第四段横向长度及纵向长度，纵向长度向上为正
+        cr10 cr20:外截面下方、上方倒角
+        d:截面x轴坐标
         根据build_ele数据获取截面外轮廓
         """
         #总长宽
@@ -606,7 +677,7 @@ class BoxGirderPlus1():
         height=self.q10+self.q20+self.q30+self.q40+self.b0-self.a10*self.p10-self.a20*self.p20-self.a30*self.p30-self.a40*self.p40
         self.c40=self.a10+self.a20+self.a30+self.a40-self.c10-self.c20-self.c30
         #线性主点
-        pt0=AllplanGeo.Point3D(0,0,height)
+        pt0=AllplanGeo.Point3D(d,0,height)
         pt1=pt0+AllplanGeo.Vector3D(0,self.a10,self.a10*self.p10)
         pt2=pt1+AllplanGeo.Vector3D(0,self.a20,self.a20*self.p20)
         pt3=pt2+AllplanGeo.Vector3D(0,self.a30,self.a30*self.p30)
@@ -637,7 +708,7 @@ class BoxGirderPlus1():
         #CR2倒角
         err1,ln6,ln7,fil67=AllplanGeo.FilletCalculus3D.Calculate(ln6,ln7,self.cr20)
         #CR1倒角
-        err2,ln7,ln8,fil78=AllplanGeo.FilletCalculus3D.Calculate(ln7,ln8,self.cr10)
+        err2,ln7,ln8,fil78=AllplanGeo.FilletCalculus3D.Calculate(ln7,ln8,cr10)
         #连成路径
         lpath=AllplanGeo.Path3D()
         lpath+=ln0
@@ -662,7 +733,8 @@ class BoxGirderPlus1():
         lpath+=rpath
         mainline=[ln0,ln1,ln2,ln3,ln4,ln5,ln6,ln7,ln8]
         scaleline=[ln0,ln1,ln2,ln3,ln4,ln51,lsc,ln52,ln6,fil67,ln7,fil78,ln8]
-        return (lpath,mainline,scaleline)
+        pointlist=[pt0,pt1,pt2,pt3,pt4,pt5,lsc.StartPoint,ln52.StartPoint,ln6.StartPoint,fil67.StartPoint,ln7.StartPoint,fil78.StartPoint,ln8.StartPoint,pt9]
+        return (lpath,mainline,scaleline,pointlist)
 
     def create_common_inner_section_path(self,d1,d2,height,uplinenum,e1,n1,e2,n2,e3,n3,downlinenum,f1,m1,f2,m2,f3,m3,bo1,ce1,bo2,cf1,d):
         """
@@ -824,7 +896,7 @@ class BoxGirderPlus1():
         根据build_ele生成纵向钢筋
         '''
         reinforcement=[]
-        lpath,mainline,scaleline=self.create_common_outer_section_path()
+        lpath,mainline,scaleline,ptl=self.create_common_outer_section_path(self.cr10)
         #顶板顶层铺设线
         mainpoly=AllplanGeo.Polyline3D()
         for i in range(5):
@@ -1426,7 +1498,7 @@ class BoxGirderPlus1():
         '''
         matxz=AllplanGeo.Matrix3D()
         matxz.Reflection(AllplanGeo.Plane3D(AllplanGeo.Point3D(0, 0, 0),AllplanGeo.Point3D(0, 0, 1),AllplanGeo.Point3D(1, 0, 0)))
-        outsect,outmain,outscale=self.create_common_outer_section_path()
+        outsect,outmain,outscale,ptl=self.create_common_outer_section_path(self.cr10)
         start_point=outmain[3].GetEndPoint()
         end_point=start_point+AllplanGeo.Vector3D(2*self.halflength,0,0)
         angle_global_to_local     = AllplanGeo.Angle()
@@ -2553,7 +2625,6 @@ class BoxGirderPlus1():
         shape.Move(AllplanGeo.Vector3D(0,0,558/2+20))
         N54=self.div_barplacement_on_polyline(96,shape,[450,300],[300,400],[1,2],self.barbottombottomlist)
         reinforcement+=self.copy_barplacement(N54,True,1)
-        reinforcement=[]
         #N55
         profile,hooklength,starthookangle,endhookangle=Createsteelshape.shape_N45_steel(base=1040,length=1267,diameter=12)
         shape_props = ReinforcementShapeProperties.rebar(12,r,self.StirSteelGrade,self.ConcreteGrade, AllplanReinf.BendingShapeType.LongitudinalBar)
@@ -2589,6 +2660,7 @@ class BoxGirderPlus1():
         shape.Move(AllplanGeo.Vector3D(0,self.bar_top_distance_list()[26],-512/2+30))
         N56=self.div_barplacement_on_polyline(98,shape,[2450],[500],[28],self.bartoptoplist)
         reinforcement+=self.copy_barplacement(N56,True,2)
+        reinforcement=[]
         return reinforcement
 
     def create_spiral_reinforcement(self):
